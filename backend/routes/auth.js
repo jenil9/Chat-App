@@ -69,4 +69,22 @@ if (!isPasswordValid) {
   }
 })
 
+router.get('/verifyToken',(req,res)=>{
+  const token=req.cookies['token'];
+  if(!token){
+    res.status(401).json({});
+    return;
+  }
+ 
+  try {
+  const decoded = jwt.verify(token, JWT_SECRET);
+ 
+  res.status(200).json(decoded);
+} catch (err) {
+  res.status(401).json({});
+    return;
+}
+
+})
+
 module.exports= router;

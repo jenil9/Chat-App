@@ -25,7 +25,8 @@ app.get('/',(req,res)=>{
   res.json({
     "msg":"hello from the api of chat app project"
     ,"/api/auth/signup":"create user",
-    "api/auth/login":"verify user and generate token"
+    "api/auth/login":"verify user and generate token",
+    "api/auth/verifyToken":"to verify token and decode it"
   });
 })
 
