@@ -13,7 +13,7 @@ const ProtectedRoute = ({ children }) => {
     const verify = async () => {
       try {
         const res = await fetch(
-          "http://localhost:3000/api/auth/verifyToken",
+          `${import.meta.env.VITE_API_AUTH_URL}/verifyToken`,
           {
             method: "GET",
             headers: { "Content-Type": "application/json" },

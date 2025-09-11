@@ -4,16 +4,13 @@ const jwt = require('jsonwebtoken');
 const {User}=require('../models/index');
 const router=express.Router();
 
-const JWT_SECRET='jenil_buha'
+const JWT_SECRET = process.env.JWT_SECRET;
 
 router.post('/signup',async (req,res)=>{
-  console.log(req.body);
-  
   try {
     const { username, email, password } = req.body;
 
     const existingUser = await User.findOne({ email });
-    console.log(existingUser)
     if (existingUser) {
       return res.status(400).json({ success: false, message: 'Email already exists' });
     }
@@ -52,7 +49,7 @@ if (!isPasswordValid) {
 
 
   
-  const token = jwt.sign({ id: user._id, username: user.username }, JWT_SECRET);
+  const token = jwt.sign({ id: user._id, username: user.username,friendCode:user.friendCode,email:user.email }, JWT_SECRET);
 
   // Set token in HttpOnly cookie
   res.cookie("token", token, {
@@ -61,7 +58,7 @@ if (!isPasswordValid) {
     sameSite: "strict",
   });
 
-  res.json({ message: "Login successful" });
+  res.json({"userid":user._id });
   }
   catch (err) {
     console.error(err);
@@ -86,5 +83,12 @@ router.get('/verifyToken',(req,res)=>{
 }
 
 })
-
+router.get("/logout", (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true, // use true in production (HTTPS)
+    sameSite: "strict",
+  });
+  return res.status(200).json({ message: "Logged out successfully" });
+});
 module.exports= router;

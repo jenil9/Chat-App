@@ -1,3 +1,3 @@
 const authRouter =require('./auth')
-
-module.exports ={authRouter};
+const friendRouter =require('./friend')
+module.exports ={authRouter,friendRouter};

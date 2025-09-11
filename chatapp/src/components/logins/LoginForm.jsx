@@ -1,6 +1,7 @@
 import React,{useState} from 'react'
 import { useForm } from 'react-hook-form';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { initSocket } from '../../../socket';
 
 const LoginForm = () => {
   const navigate=useNavigate();
@@ -12,9 +13,8 @@ const LoginForm = () => {
   const [isServerError,setisServerError]=useState(false);
 
   const onSubmit = async (data) => {
-    // console.log("Login Data:", data);
     try{
-      const res = await fetch(`http://localhost:3000/api/auth/login`, {
+      const res = await fetch(`${import.meta.env.VITE_API_AUTH_URL}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -34,6 +34,7 @@ const LoginForm = () => {
         else{setisServerError(true)}
         return;
       }
+      initSocket(res.userid);
       navigate('/')
       setisServerError(false);
   }
@@ -50,7 +51,7 @@ const LoginForm = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-900">
      {isServerError?(<div className="text-center">
           <img
-            src="/assets/serverdown.webp" // replace with your image path
+            src="/src/assets/serverdown.webp"
             alt="Server down"
             className="mx-auto mb-4 w-32"
           />

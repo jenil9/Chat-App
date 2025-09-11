@@ -16,13 +16,12 @@ export default function SignupForm({ onSignup }) {
   const onSubmit = async(data) => {
     setisServerError(false);
     try {
-      const res = await fetch("http://localhost:3000/api/auth/signup", {
+      const res = await fetch(`${import.meta.env.VITE_API_AUTH_URL}/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
       const result = await res.json();
-      console.log("Server response:", result);
       
       if (!res.ok) {
         if (res.status === 400 ) {
@@ -55,7 +54,7 @@ export default function SignupForm({ onSignup }) {
         isServerError ? (
         <div className="text-center">
           <img
-            src="/assets/serverdown.webp" // replace with your image path
+            src="/src/assets/serverdown.webp"
             alt="Server down"
             className="mx-auto mb-4 w-32"
           />

@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
   isAuth: null,
-  userinfo: {}
+  userinfo: {}//{ id: user._id, username: user.username,friendCode:user.friendCode ,email:user.email}
 }
 
 export const userSlice = createSlice({
