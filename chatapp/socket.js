@@ -1,7 +1,7 @@
 // src/socket.js
 import { io } from "socket.io-client";
 import store from "./src/store/store";
-import { addMessage, addMultipleMessages, updateMessageStatus, setUserOnlineStatus } from "./src/store/messagesSlice";
+import { addMessage, addMultipleMessages, updateMessageStatus, setUserOnlineStatus,markMessagesAsReadForFriend } from "./src/store/messagesSlice";
 
 let socket;
 
@@ -103,10 +103,15 @@ export const loadMessages = async (friendId) => {
 };
 
 // Helper function to mark messages as read
-export const markMessagesAsRead = async (peerId, before) => {
+export const markMessagesAsRead = async (peerId) => {
   try {
     const socketInstance = await waitForSocket();
-    socketInstance.emit('markRead', { peerId, before });
+    socketInstance.emit('markRead', { peerId });
+
+    // Update Redux state
+    const state = store.getState();
+    const currentUserId = state.user.userinfo.id; // get current user
+    store.dispatch(markMessagesAsReadForFriend({ friendId: peerId, currentUserId }));
   } catch (error) {
     console.warn('Socket not available for marking messages as read:', error);
   }

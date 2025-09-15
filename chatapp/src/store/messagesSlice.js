@@ -2,7 +2,6 @@ import { createSlice, createSelector } from '@reduxjs/toolkit'
 
 const initialState = {
   messages: [], // Array of all messages from all friends
-  // Structure: { _id, senderId, receiverId, text, createdAt, status, conversationId }
   onlineUsers: {}, // Track online users as plain object
 }
 
@@ -10,63 +9,75 @@ export const messagesSlice = createSlice({
   name: 'messages',
   initialState,
   reducers: {
+    // Add a single message
     addMessage: (state, action) => {
-      // Add a new message to the messages array
       const message = action.payload
-      // Check if message already exists to avoid duplicates
-      const existingMessage = state.messages.find(msg => msg._id === message._id)
-      if (!existingMessage) {
-        state.messages.push(message)
+      if (!state.messages.find(msg => msg._id === message._id)) {
+        state.messages = [...state.messages, message] // immutable
       }
     },
+
+    // Add multiple messages
     addMultipleMessages: (state, action) => {
-      // Add multiple messages (useful for pending messages on connection)
       const messages = action.payload
-      messages.forEach(message => {
-        const existingMessage = state.messages.find(msg => msg._id === message._id)
-        if (!existingMessage) {
-          state.messages.push(message)
+      const newMessages = messages.filter(
+        msg => !state.messages.find(m => m._id === msg._id)
+      )
+      if (newMessages.length > 0) {
+        state.messages = [...state.messages, ...newMessages] // immutable
+      }
+    },
+
+    // Update message status (sent -> delivered -> read)
+    updateMessageStatus: (state, action) => {
+      const { messageId, status, timestamp } = action.payload
+      state.messages = state.messages.map(msg => {
+        if (msg._id !== messageId) return msg
+        return {
+          ...msg,
+          status,
+          deliveredAt: status === 'delivered' ? timestamp || msg.deliveredAt : msg.deliveredAt,
+          readAt: status === 'read' ? timestamp || msg.readAt : msg.readAt
         }
       })
     },
-    updateMessageStatus: (state, action) => {
-      // Update message status (sent -> delivered -> read)
-      const { messageId, status, timestamp } = action.payload
-      const message = state.messages.find(msg => msg._id === messageId)
-      if (message) {
-        message.status = status
-        if (timestamp) {
-          if (status === 'delivered') {
-            message.deliveredAt = timestamp
-          } else if (status === 'read') {
-            message.readAt = timestamp
-          }
+    // In messagesSlice
+    markMessagesAsReadForFriend: (state, action) => {
+      const { friendId, currentUserId } = action.payload;
+      state.messages = state.messages.map(msg => {
+        if (msg.senderId === friendId && msg.receiverId === currentUserId) {
+          return { ...msg, status: 'read', readAt: new Date().toISOString() };
         }
-      }
+        return msg;
+      });
     },
+    
+
+
+    // Clear all messages (logout)
     clearMessages: (state) => {
-      // Clear all messages (useful for logout)
       state.messages = []
     },
+
+    // Set online status for a user
     setUserOnlineStatus: (state, action) => {
-      // Set online status for a user
       const { userId, isOnline } = action.payload
+      state.onlineUsers = { ...state.onlineUsers } // clone object
       if (isOnline) {
         state.onlineUsers[userId] = true
       } else {
         delete state.onlineUsers[userId]
       }
     },
+
+    // Clear all online users (logout)
     clearOnlineUsers: (state) => {
-      // Clear all online users (useful for logout)
       state.onlineUsers = {}
     }
   }
 })
 
-export const { addMessage, addMultipleMessages, updateMessageStatus, clearMessages, setUserOnlineStatus, clearOnlineUsers } = messagesSlice.actions
-
-// Selector to get messages for a specific friend (memoized)
+// Selector to get messages for a specific friend
 export const selectMessagesForFriend = createSelector(
   [
     (state) => state.messages.messages,
@@ -74,14 +85,16 @@ export const selectMessagesForFriend = createSelector(
     (state) => state.user.userinfo.id
   ],
   (messages, friendId, currentUserId) => {
-    return messages.filter(msg => 
-      (msg.senderId === friendId && msg.receiverId === currentUserId) ||
-      (msg.senderId === currentUserId && msg.receiverId === friendId)
-    ).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+    return messages
+      .filter(msg =>
+        (msg.senderId === friendId && msg.receiverId === currentUserId) ||
+        (msg.senderId === currentUserId && msg.receiverId === friendId)
+      )
+      .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
   }
 )
 
-// Selector to get unread message count for a specific friend (memoized)
+// Selector to get unread message count for a specific friend
 export const selectUnreadCountForFriend = createSelector(
   [
     (state) => state.messages.messages,
@@ -89,25 +102,20 @@ export const selectUnreadCountForFriend = createSelector(
     (state) => state.user.userinfo.id
   ],
   (messages, friendId, currentUserId) => {
-    return messages.filter(msg => 
-      msg.senderId === friendId && 
-      msg.receiverId === currentUserId && 
-      msg.status !== 'read'
+    return messages.filter(
+      msg => msg.senderId === friendId && msg.receiverId === currentUserId && msg.status !== 'read'
     ).length
   }
 )
 
-// Selector to get all unread message count (memoized)
+// Selector to get total unread messages
 export const selectTotalUnreadCount = createSelector(
   [
     (state) => state.messages.messages,
     (state) => state.user.userinfo.id
   ],
   (messages, currentUserId) => {
-    return messages.filter(msg => 
-      msg.receiverId === currentUserId && 
-      msg.status !== 'read'
-    ).length
+    return messages.filter(msg => msg.receiverId === currentUserId && msg.status !== 'read').length
   }
 )
 
@@ -115,5 +123,15 @@ export const selectTotalUnreadCount = createSelector(
 export const selectUserOnlineStatus = (state, userId) => {
   return state.messages.onlineUsers[userId] ? 'Online' : 'Offline'
 }
+
+export const {
+  addMessage,
+  addMultipleMessages,
+  updateMessageStatus,
+  clearMessages,
+  setUserOnlineStatus,
+  clearOnlineUsers,
+  markMessagesAsReadForFriend
+} = messagesSlice.actions
 
 export default messagesSlice.reducer

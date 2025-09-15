@@ -1,8 +1,8 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import { getSocket, sendMessage, markMessagesAsRead, loadMessages, checkOnlineStatus } from '../../../socket'
-import { useSelector } from 'react-redux'
-import { selectMessagesForFriend, selectUserOnlineStatus } from '../../store/messagesSlice'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectMessagesForFriend, selectUserOnlineStatus,markMessagesAsReadForFriend } from '../../store/messagesSlice'
 
 const ChatWindow = () => {
   const params = useParams()
@@ -12,6 +12,7 @@ const ChatWindow = () => {
   const [message, setmessage] = useState("")
   const messagesEndRef = useRef(null)
   const socket = getSocket();
+  const dispatch=useDispatch();
   
   const currentUserId = useSelector((state) => state.user.userinfo.id)
   const messages = useSelector((state) => selectMessagesForFriend(state, friendId))
@@ -55,6 +56,7 @@ const ChatWindow = () => {
         
         if (hasUnreadMessages) {
           await markMessagesAsRead(friendId)
+          dispatch(markMessagesAsReadForFriend(friendId))
         }
       }
     }
