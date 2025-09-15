@@ -6,15 +6,22 @@ const cors=require('cors');
 
 
 const {authRouter,friendRouter}=require('./routes/index');
+const chatSocketHandler=require('./socket/chat');
 
 const app=express();
 const server = require('http').createServer(app);
-const io = require('socket.io')(server);
+const io = require('socket.io')(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+});
+
 
 mongoose.connect(process.env.MONGODB_URI)
 .then(()=>{
   if(process.env.NODE_ENV === 'development') {
-    console.log("Database connected successfully");
   }
 })
 .catch((error)=>{
@@ -23,8 +30,10 @@ mongoose.connect(process.env.MONGODB_URI)
 })
 
 app.use(cors({       //for cross origin talk
-  origin: process.env.FRONTEND_URL, // frontend URL
+  origin: ["http://localhost:5173", "http://localhost:3000"], // frontend URL
   credentials: true,               // if you need cookies later
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "Cookie"]
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -42,6 +51,11 @@ app.get('/',(req,res)=>{
   });
 })
 
+// Test endpoint for CORS
+app.get('/test-cors', (req, res) => {
+  res.json({ message: 'CORS is working!', timestamp: new Date().toISOString() });
+})
+
 io.on("connection", (socket) => {
   chatSocketHandler(io, socket);
 });
@@ -50,5 +64,6 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT,()=>{
     if(process.env.NODE_ENV === 'development') {
       console.log(`Server running at port ${PORT}`);
+      console.log(`CORS enabled for: http://localhost:5173`);
     }
 })

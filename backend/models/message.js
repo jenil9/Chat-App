@@ -1,17 +1,23 @@
-const {User}=require('./index');
 const mongoose=require('mongoose');
-const messageSchema = new mongoose.Schema({
-    sender: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    receiver: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    messages: [
-      {
-        text: String,
-        timestamp: { type: Date, default: Date.now }
-      }
-    ]
-  }, { timestamps: true });
 
+// Flat, append-only message model optimized for pagination and delivery state
+const messageSchema = new mongoose.Schema(
+  {
+    conversationId: { type: String, index: true },
+    sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    receiver: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    text: { type: String, required: true },
+    status: { type: String, enum: ['sent', 'delivered', 'read'], default: 'sent', index: true },
+    deliveredAt: { type: Date },
+    readAt: { type: Date }
+  },
+  { timestamps: true }
+);
 
-module.exports= mongoose.model('Message', messageSchema);
+// Indexes for efficient reads
+messageSchema.index({ conversationId: 1, createdAt: -1 });
+messageSchema.index({ receiver: 1, status: 1, createdAt: 1 });
+
+module.exports = mongoose.model('Message', messageSchema);
 
   

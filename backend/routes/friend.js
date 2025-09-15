@@ -101,4 +101,25 @@ router.post('/reject', async (req, res) => {
   }
 });
 
+router.get('/list/:id',async (req,res)=>{
+   const userid=req.params.id;
+   try{
+    const me = await User.findById(userid)
+    .select("friends")
+    .populate("friends");
+    const data=me.friends.map((user)=>{
+      return {
+        "id":user._id,
+        "username":user.username,
+        "email":user.email
+      }
+    });
+    res.json(data);
+   }
+   catch(err)
+   {
+    res.status(500).json({"msg":"server error"});
+   }
+})
+
 module.exports = router;

@@ -1,7 +1,6 @@
 import React,{useState} from 'react'
 import { useForm } from 'react-hook-form';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { initSocket } from '../../../socket';
 
 const LoginForm = () => {
   const navigate=useNavigate();
@@ -34,7 +33,6 @@ const LoginForm = () => {
         else{setisServerError(true)}
         return;
       }
-      initSocket(res.userid);
       navigate('/')
       setisServerError(false);
   }
