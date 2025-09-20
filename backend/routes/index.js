@@ -1,3 +1,4 @@
 const authRouter =require('./auth')
 const friendRouter =require('./friend')
-module.exports ={authRouter,friendRouter};
+const profileRouter=require('./profile')
+module.exports ={authRouter,friendRouter,profileRouter};

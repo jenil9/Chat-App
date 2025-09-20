@@ -16,8 +16,12 @@ const FriendItem = ({ friend, location }) => {
         state={{ friend: friend, from: location.pathname }}
         className="flex items-center gap-3 px-3 py-2 hover:bg-[#1e1f22] transition-colors"
       >
-        <div className="h-8 w-8 rounded-full bg-gray-600 flex items-center justify-center text-xs font-semibold">
-          {(friend.username || '?').slice(0,2).toUpperCase()}
+        <div className="h-8 w-8 rounded-full bg-gray-600 flex items-center justify-center text-xs font-semibold overflow-hidden">
+        {friend.profilePic ? (
+              <img src={friend.profilePic} alt="profile" className="h-full w-full object-cover" />
+            ) : (
+              (friend.username ? friend.username.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'U')
+            )}
         </div>
         <div className="min-w-0 flex-1">
           <div className="font-medium truncate">{friend.username || 'Unknown'}</div>
@@ -50,7 +54,7 @@ const Sidebar = () => {
       setLoading(true)
       setError('')
       try {
-        // Expected response shape: [{ id, username, email }]
+        // Expected response shape: [{ id, username, email,profilePic }]
         const res = await fetch(`${API_BASE}/api/friend/list/${user.id}`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
@@ -81,7 +85,14 @@ const Sidebar = () => {
     <aside className="h-full flex flex-col bg-[#2b2d31] text-gray-200">
       <div className="p-4 border-b border-gray-700">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-sm font-semibold">A</div>
+          {/* <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-sm font-semibold">A</div> */}
+          <div className="h-15 w-15 rounded-full bg-blue-600 flex items-center justify-center text-sm font-semibold overflow-hidden">
+            {user.profilePic ? (
+              <img src={user.profilePic} alt="profile" className="h-full w-full object-cover" />
+            ) : (
+              (user.username ? user.username.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'U')
+            )}
+          </div>
           <div>
             <div className="font-semibold">{user?.username || 'User'}</div>
             <div className="text-xs text-gray-400">online</div>

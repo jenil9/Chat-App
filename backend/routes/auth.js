@@ -49,7 +49,7 @@ if (!isPasswordValid) {
 
 
   
-  const token = jwt.sign({ id: user._id, username: user.username,friendCode:user.friendCode,email:user.email }, JWT_SECRET);
+  const token = jwt.sign({ id: user._id,email:user.email}, JWT_SECRET);
 
   // Set token in HttpOnly cookie
   res.cookie("token", token, {
@@ -66,7 +66,7 @@ if (!isPasswordValid) {
   }
 })
 
-router.get('/verifyToken',(req,res)=>{
+router.get('/verifyToken',async (req,res)=>{
   const token=req.cookies['token'];
   if(!token){
     res.status(401).json({});
@@ -75,8 +75,9 @@ router.get('/verifyToken',(req,res)=>{
  
   try {
   const decoded = jwt.verify(token, JWT_SECRET);
- 
-  res.status(200).json(decoded);
+  const user=await User.findOne({email:decoded.email});//,  
+  const data={...decoded,username: user.username,friendCode:user.friendCode,profilePic:user.profilePic}
+  res.status(200).json(data);
 } catch (err) {
   res.status(401).json({});
     return;

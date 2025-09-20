@@ -111,7 +111,8 @@ router.get('/list/:id',async (req,res)=>{
       return {
         "id":user._id,
         "username":user.username,
-        "email":user.email
+        "email":user.email,
+        "profilePic":user.profilePic
       }
     });
     res.json(data);

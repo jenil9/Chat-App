@@ -5,7 +5,7 @@ const mongoose=require('mongoose');
 const cors=require('cors');
 
 
-const {authRouter,friendRouter}=require('./routes/index');
+const {authRouter,friendRouter,profileRouter}=require('./routes/index');
 const chatSocketHandler=require('./socket/chat');
 
 const app=express();
@@ -13,7 +13,7 @@ const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
   cors: {
     origin: "http://localhost:5173",
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true
   }
 });
@@ -32,7 +32,7 @@ mongoose.connect(process.env.MONGODB_URI)
 app.use(cors({       //for cross origin talk
   origin: ["http://localhost:5173", "http://localhost:3000"], // frontend URL
   credentials: true,               // if you need cookies later
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS","PATCH"],
   allowedHeaders: ["Content-Type", "Authorization", "Cookie"]
 }));
 app.use(express.json());
@@ -42,6 +42,7 @@ app.use(cookieParser());
 
 app.use('/api/auth',authRouter);
 app.use('/api/friend',friendRouter);
+app.use('/api/profile',profileRouter);
 app.get('/',(req,res)=>{
   res.json({
     "msg":"hello from the api of chat app project"
