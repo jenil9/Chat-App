@@ -80,7 +80,7 @@ const ProfileView = () => {
     } else {
       setfailmsg("");
       
-      dispatch(setUser({...user,profilePic:null}));
+      dispatch(setUser({...user,profilePic:null}));//overide the profilepic
       
    }
   }
@@ -249,6 +249,7 @@ const ProfileView = () => {
 
           {/* Profile Picture Upload */}
           <div className="bg-[#1e1f22] border border-gray-700 rounded-xl p-6 flex flex-col items-center justify-center">
+            <h1 className='mb-2'>Update Profile Pic</h1>
             <div className="relative">
               <div className="h-28 w-28 rounded-full bg-[#2b2d31] flex items-center justify-center overflow-hidden">
                 {preview ? (

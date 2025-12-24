@@ -6,7 +6,8 @@ const cors=require('cors');
 
 
 const {authRouter,friendRouter,profileRouter}=require('./routes/index');
-const chatSocketHandler=require('./socket/chat');
+const {videoSocketHandler,chatSocketHandler}=require('./socket/chat');
+
 
 const app=express();
 const server = require('http').createServer(app);
@@ -59,6 +60,7 @@ app.get('/test-cors', (req, res) => {
 
 io.on("connection", (socket) => {
   chatSocketHandler(io, socket);
+  videoSocketHandler(io,socket);
 });
 
 const PORT = process.env.PORT || 3000;

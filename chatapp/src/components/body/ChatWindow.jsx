@@ -11,12 +11,26 @@ const ChatWindow = () => {
   const friendId = params.friendId
   const [message, setmessage] = useState("")
   const messagesEndRef = useRef(null)
+  const messagesTopRef = useRef(null);
+  const containerref = useRef(null);
   const socket = getSocket();
   const dispatch=useDispatch();
+
+  const prevScrollHeightRef = useRef(0);
+
+
+  const [cnt,setCnt]=useState(1);
+  const currmsg=[];
+  
   
   const currentUserId = useSelector((state) => state.user.userinfo.id)
   const messages = useSelector((state) => selectMessagesForFriend(state, friendId))
   const isFriendOnline = useSelector((state) => selectUserOnlineStatus(state, friendId))
+  let i=0;
+  while(i<messages.length && i<cnt*10){//pagination
+    currmsg.unshift(messages[messages.length-i-1]);
+    i++;
+  }
 
   const friend = useMemo(() => {
     // Prefer routed state; fallback to minimal friend object from URL
@@ -27,7 +41,11 @@ const ChatWindow = () => {
   // Scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  }, [friendId])
+
+  // useEffect(() => {
+  //   messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  // }, [messages])
 
   // Check online status when friend changes
   useEffect(() => {
@@ -63,6 +81,7 @@ const ChatWindow = () => {
     
     // Add a small delay to ensure messages are fully loaded
     const timeoutId = setTimeout(markAsRead, 100)
+    // messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     
     return () => clearTimeout(timeoutId)
   }, [messages, friendId, currentUserId]) // Now depends on messages to trigger after loading
@@ -87,6 +106,21 @@ const ChatWindow = () => {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
   }, [friendId, currentUserId, messages])
 
+  useEffect(() => {
+    const container = containerref.current;
+    if (!container) return;
+  
+    const oldScrollHeight = prevScrollHeightRef.current;
+    if (!oldScrollHeight) return;
+  
+    const newScrollHeight = container.scrollHeight;
+  
+    // maintain position
+    container.scrollTop = newScrollHeight - oldScrollHeight;
+  }, [cnt]);//useEffect always runs after React has committed changes to the DOM and the browser has painted the screen.
+  //as we need to maintain the position of the scroll bar after loading messages only
+  
+
   const handleClick = () => {
     if (message.trim().length === 0) {
       return
@@ -98,6 +132,9 @@ const ChatWindow = () => {
     
     // Send message
     sendMessage(currentUserId, friendId, messageText)
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, 50)//as dom updation is slow
   }
 
   const handleKeyPress = (e) => {
@@ -106,25 +143,26 @@ const ChatWindow = () => {
       handleClick()
     }
   }
-
+  const handleScroll = () => {
+    const container = containerref.current;
+    if (!container) return;
+  
+    if (container.scrollTop === 0) {
+      // store height BEFORE loading more
+      prevScrollHeightRef.current = container.scrollHeight;
+      setCnt(prev => prev + 1);
+    }//if we adjust scroll here it will be problem as dom is not yet updated and positon of scroll is adjusted just after message kept
+  };
+  
+  
   return (
     <section className="h-full flex flex-col bg-[#313338] text-gray-200 overflow-hidden">
       {/* conversation header */}
-      <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between flex-shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-full bg-gray-600 flex items-center justify-center text-xs font-semibold">
-            {(friend.username || '?').slice(0,2).toUpperCase()}
-          </div>
-          <div>
-            <div className="font-semibold">{friend.username || 'Friend'}</div>
-            <div className="text-xs text-gray-400">{isFriendOnline}</div>
-          </div>
-        </div>
-       
-      </div>
+     
 
       {/* messages area */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-3 min-h-0 max-h-full">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-3 min-h-0 max-h-full" ref={containerref} onScroll={handleScroll}>
+      <div ref={messagesTopRef} />
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center text-gray-400 text-sm">
@@ -133,7 +171,7 @@ const ChatWindow = () => {
           </div>
         ) : (
           <div className="space-y-3">
-            {messages.map((msg) => (
+            {currmsg.map((msg) => (
               <div
                 key={msg._id}
                 className={`flex ${msg.senderId === currentUserId ? 'justify-end' : 'justify-start'}`}
@@ -163,6 +201,7 @@ const ChatWindow = () => {
                 </div>
               </div>
             ))}
+            
           </div>
         )}
         <div ref={messagesEndRef} />

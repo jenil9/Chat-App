@@ -8,5 +8,6 @@ import ChatWindow from "./body/ChatWindow";
 import ProfileView from "./profile/ProfileView";
 import AddFriend from "./body/AddFriend";
 import PendingRequestCard from "./profile/PendingRequestCard";
-
-export  {Header,Layout,LoginForm,SignupForm,ProtectedRoute,Sidebar,ChatWindow,ProfileView,AddFriend,PendingRequestCard}
+import ChatContainer from "./body/ChatContainer";
+import VideoWindow from "./body/VideoWindow";
+export  {Header,Layout,LoginForm,SignupForm,ProtectedRoute,Sidebar,ChatWindow,ProfileView,AddFriend,PendingRequestCard,ChatContainer,VideoWindow}

@@ -8,7 +8,7 @@ function buildConversationId(userA, userB) {
   return a < b ? `${a}_${b}` : `${b}_${a}`;
 }
 
-module.exports = async function chatSocketHandler(io, socket) {
+ async function chatSocketHandler(io, socket) {
   const userId = socket.handshake?.auth?.userId;
   if (!userId) {
     socket.disconnect(true);
@@ -183,3 +183,30 @@ module.exports = async function chatSocketHandler(io, socket) {
     onlineUsers.delete(userId);
   });
 };
+
+
+
+
+async function videoSocketHandler(io, socket) {
+  const userId = socket.handshake?.auth?.userId
+  if (!userId) {
+    socket.disconnect(true)
+    return
+  }
+
+  socket.on("offer", async (data) => {
+    socket.to(data.to).emit("offer", { sdp: data.sdp, from: socket.id })
+  })
+
+  socket.on("answer", async (data) => {
+    socket.to(data.to).emit("answer", { sdp: data.sdp })
+  })
+
+  socket.on("candidate", async (data) => {
+    socket.to(data.to).emit("candidate", data.candidate)
+  })
+}
+
+
+
+module.exports={chatSocketHandler,videoSocketHandler}

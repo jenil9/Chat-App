@@ -23,7 +23,7 @@ const Header =  () => {
   return (
     <header>
       <div className="w-full rounded-2xl bg-[#1e1f22] text-gray-200 p-4 flex items-center justify-between">
-        <div className="text-xl font-semibold">Header</div>
+        <div className="text-xl font-semibold">Chat On</div>
         <div className="flex items-center gap-2">
           <Link
             to="/profile"
