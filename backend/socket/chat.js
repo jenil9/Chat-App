@@ -1,6 +1,11 @@
 const Message = require('../models/message');
+const User = require('../models/user');
 
 let onlineUsers = new Map();
+
+async function onlogout(userId){
+  
+}
 
 function buildConversationId(userA, userB) {
   const a = String(userA);
@@ -9,14 +14,28 @@ function buildConversationId(userA, userB) {
 }
 
  async function chatSocketHandler(io, socket) {
-  const userId = socket.handshake?.auth?.userId;
+
+  const userId = String(socket.handshake?.auth?.userId);
   if (!userId) {
     socket.disconnect(true);
     return;
   }
 
-  onlineUsers.set(userId, socket.id);
+  // Add socket.id to user's set
+  if (!onlineUsers.has(userId)) onlineUsers.set(userId, new Set());
+  onlineUsers.get(userId).add(socket.id);
 
+  // Notify friends that user is online
+  const user = await User.findById(userId);
+  const friends = user.friends || [];
+  friends.forEach(fId => {
+    const fStr = String(fId);
+    if (onlineUsers.has(fStr)) {
+      onlineUsers.get(fStr).forEach(fSocketId => {
+        socket.to(fSocketId).emit("iamonline", userId);
+      });
+    }
+  });
   // Deliver undelivered messages on connect
   try {
     const pending = await Message.find({ receiver: userId, status: 'sent' })
@@ -35,6 +54,9 @@ function buildConversationId(userA, userB) {
       }));
       
       socket.emit('pendingMessages', pendingMessages);
+
+      
+
       
       await Message.updateMany(
         { receiver: userId, status: 'sent' },
@@ -43,6 +65,7 @@ function buildConversationId(userA, userB) {
     }
   } catch (err) {
     // swallow to avoid disconnecting user on delivery failure
+    console.log(err)
   }
 
   // Send a new message
@@ -174,13 +197,44 @@ function buildConversationId(userA, userB) {
     }
   });
   socket.on("check-online-status", (friendId) => {
-    const isOnline = onlineUsers.has(String(friendId)); 
+    const friendIdStr = String(friendId);
+    const isOnline = onlineUsers.has(friendIdStr); 
     const status = isOnline ? "Online" : "Offline";
-    socket.emit("friend-online-status", { friendId, status });
+    socket.emit("friend-online-status", { friendId: friendIdStr, status });
   });
   
-  socket.on('disconnect', () => {
-    onlineUsers.delete(userId);
+  socket.on("disconnect", async () => {
+    // Remove only this socket.id
+    if (onlineUsers.has(userId)) {
+      onlineUsers.get(userId).delete(socket.id);
+      // If no other sockets left, user is truly offline
+      if (onlineUsers.get(userId).size === 0) {
+        onlineUsers.delete(userId);
+        friends.forEach(fId => {
+          const fStr = String(fId);
+          if (onlineUsers.has(fStr)) {
+            onlineUsers.get(fStr).forEach(fSocketId => {
+              socket.to(fSocketId).emit("iamoffline", userId);
+            });
+          }
+        });
+      }
+    }
+  });
+
+  socket.on("logout", async () => {
+    if (onlineUsers.has(userId)) {
+      onlineUsers.get(userId).forEach(sid => socket.to(sid).emit("iamoffline", userId));
+      onlineUsers.delete(userId);
+      friends.forEach(fId => {
+          const fStr = String(fId);
+          if (onlineUsers.has(fStr)) {
+            onlineUsers.get(fStr).forEach(fSocketId => {
+              socket.to(fSocketId).emit("iamoffline", userId);
+            });
+          }
+        });
+    }
   });
 };
 
@@ -205,6 +259,8 @@ async function videoSocketHandler(io, socket) {
   socket.on("candidate", async (data) => {
     socket.to(data.to).emit("candidate", data.candidate)
   })
+
+  
 }
 
 

@@ -1,8 +1,8 @@
 // src/socket.js
 import { io } from "socket.io-client";
 import store from "./src/store/store";
-import { addMessage, addMultipleMessages, updateMessageStatus, setUserOnlineStatus,markMessagesAsReadForFriend } from "./src/store/messagesSlice";
-
+import { addMessage, addMultipleMessages, updateMessageStatus, setUserOnlineStatus,markMessagesAsReadForFriend,addtoonline,removefromonline } from "./src/store/messagesSlice";
+import { useDispatch } from "react-redux";
 let socket;
 
 export const initSocket = (userId) => {
@@ -47,10 +47,11 @@ const setupSocketListeners = () => {
   // Listen for online status updates
   socket.on('friend-online-status', (data) => {
     const { friendId, status } = data;
-    store.dispatch(setUserOnlineStatus({ 
-      userId: friendId, 
-      isOnline: status === 'Online' 
-    }));
+    if (status === 'Online') {
+      store.dispatch(addtoonline(friendId));
+    } else {
+      store.dispatch(removefromonline(friendId));
+    }
   });
 
   // Listen for connection events
@@ -63,6 +64,23 @@ const setupSocketListeners = () => {
   socket.on('connect_error', (error) => {
     console.error('Connection error:', error);
   });
+
+  socket.on("iamonline",(userId)=>{
+    store.dispatch(addtoonline(userId));
+    
+  })
+  socket.on("iamoffline",(userId)=>{
+    store.dispatch(removefromonline(userId));
+  })
+
+  socket.on("online-status", ({ friendId, isOnline }) => {
+  if (isOnline) {
+    store.dispatch(addtoonline(friendId));
+  } else {
+    store.dispatch(removefromonline(friendId));
+  }
+});
+
 };
 
 export const getSocket = () => socket;
@@ -126,3 +144,7 @@ export const checkOnlineStatus = async (friendId) => {
     console.warn('Socket not available for checking online status:', error);
   }
 };
+
+export const onlogout=(userId)=>{
+  socket.emit('logout',userId)
+}

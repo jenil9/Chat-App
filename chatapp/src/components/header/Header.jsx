@@ -1,12 +1,18 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import { getSocket, onlogout } from "../../../socket";
 
 
 const Header =  () => {
   const navigate = useNavigate();
-
+const user = useSelector((state) => state.user.userinfo || {});
+    const userId=user.id;
   const handleLogout = async () => {
     try {
+    
+    let socket = getSocket();
+    socket.emit('logout',userId)
      const res = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/api/auth/logout`,
         {
@@ -14,6 +20,7 @@ const Header =  () => {
           credentials: 'include',
         }
       )
+
       navigate("/login");
     } catch (error) {
       console.error("Logout failed", error);

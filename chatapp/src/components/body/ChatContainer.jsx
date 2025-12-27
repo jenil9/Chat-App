@@ -25,7 +25,7 @@ const ChatContainer = () => {
   const isFriendOnline = useSelector((state) =>
     friendId ? selectUserOnlineStatus(state, friendId) : null
   )
-
+  
   const friend = useMemo(() => {
     if (friendFromState) return friendFromState
     return { id: friendId, username: 'Friend', email: '' }
@@ -33,11 +33,13 @@ const ChatContainer = () => {
 
 
   // Check online status when friend changes
-  useEffect(() => {
-    if (friendId && socket?.connected) {
-      checkOnlineStatus(friendId)
-    }
-  }, [friendId, socket])
+
+//  useEffect(() => {
+//   if (friendId && socket?.connected) {
+//     selectUserOnlineStatus()
+//   }
+// }, [friendId, socket])
+
 
   return (
     <section className="h-full flex flex-col bg-[#313338] text-gray-200 overflow-hidden">

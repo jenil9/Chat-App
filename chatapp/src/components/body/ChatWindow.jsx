@@ -27,7 +27,7 @@ const ChatWindow = () => {
   const messages = useSelector((state) => selectMessagesForFriend(state, friendId))
   const isFriendOnline = useSelector((state) => selectUserOnlineStatus(state, friendId))
   let i=0;
-  while(i<messages.length && i<cnt*10){//pagination
+  while(i<messages.length && i<cnt*10){//pagination need to do to get only display message from backend rather than all messages
     currmsg.unshift(messages[messages.length-i-1]);
     i++;
   }

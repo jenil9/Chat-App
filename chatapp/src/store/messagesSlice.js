@@ -2,7 +2,7 @@ import { createSlice, createSelector } from '@reduxjs/toolkit'
 
 const initialState = {
   messages: [], // Array of all messages from all friends
-  onlineUsers: {}, // Track online users as plain object
+  onlineUsers: [], // Track online users as array
 }
 
 export const messagesSlice = createSlice({
@@ -59,20 +59,34 @@ export const messagesSlice = createSlice({
       state.messages = []
     },
 
-    // Set online status for a user
-    setUserOnlineStatus: (state, action) => {
-      const { userId, isOnline } = action.payload
-      state.onlineUsers = { ...state.onlineUsers } // clone object
-      if (isOnline) {
-        state.onlineUsers[userId] = true
-      } else {
-        delete state.onlineUsers[userId]
-      }
-    },
+    // // Set online status for a user
+    // setUserOnlineStatus: (state, action) => {
+    //   const { userId, isOnline } = action.payload
+    //   state.onlineUsers = { ...state.onlineUsers } // clone object
+    //   if (isOnline) {
+    //     state.onlineUsers[userId] = true
+    //   } else {
+    //     delete state.onlineUsers[userId]
+    //   }
+    // },
 
     // Clear all online users (logout)
     clearOnlineUsers: (state) => {
-      state.onlineUsers = {}
+      state.onlineUsers = []
+    },
+
+    addtoonline:(state,action)=>{
+     const userid=String(action.payload);
+     if (!state.onlineUsers.includes(userid)) {
+       state.onlineUsers=[...state.onlineUsers,userid];
+     }
+    },
+    removefromonline:(state,action)=>{
+     const userid=String(action.payload);
+     state.onlineUsers=state.onlineUsers.filter((x)=>{
+       if(x===userid){return false;}
+       return true;
+     })
     }
   }
 })
@@ -121,7 +135,8 @@ export const selectTotalUnreadCount = createSelector(
 
 // Selector to get online status for a specific user
 export const selectUserOnlineStatus = (state, userId) => {
-  return state.messages.onlineUsers[userId] ? 'Online' : 'Offline'
+  const userIdStr = String(userId);
+  return state.messages.onlineUsers.includes(userIdStr)?"Online":"Offline";
 }
 
 export const {
@@ -131,7 +146,9 @@ export const {
   clearMessages,
   setUserOnlineStatus,
   clearOnlineUsers,
-  markMessagesAsReadForFriend
+  markMessagesAsReadForFriend,
+  addtoonline,
+  removefromonline
 } = messagesSlice.actions
 
 export default messagesSlice.reducer
