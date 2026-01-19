@@ -54,9 +54,10 @@ if (!isPasswordValid) {
   // Set token in HttpOnly cookie
   res.cookie("token", token, {
     httpOnly: true,
-    secure: false, // set true in production (HTTPS)
-    sameSite: "strict",
+    secure: true,          // REQUIRED for HTTPS
+    sameSite: "none"       // REQUIRED for cross-origin
   });
+  
 
   res.json({"userid":user._id });
   }

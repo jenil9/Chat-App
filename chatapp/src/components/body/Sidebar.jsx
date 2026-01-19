@@ -45,7 +45,7 @@ const Sidebar = () => {
   const [error, setError] = useState('')
   const user = useSelector((state)=>state.user.userinfo)
 
-  const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000'
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE || 'https://localhost:3000'
 
   useEffect(() => {
     if (!user?.id) return

@@ -2,6 +2,7 @@ require('dotenv').config();
 const express=require('express')
 const cookieParser=require('cookie-parser');
 const mongoose=require('mongoose');
+const fs=require('fs');
 const cors=require('cors');
 
 
@@ -10,10 +11,14 @@ const {videoSocketHandler,chatSocketHandler}=require('./socket/chat');
 
 
 const app=express();
-const server = require('http').createServer(app);
+app.use(express.static(__dirname))
+
+const key = fs.readFileSync('cert.key')
+const cert = fs.readFileSync('cert.crt')
+const server = require('https').createServer({key,cert},app);
 const io = require('socket.io')(server, {
   cors: {
-    origin: "http://localhost:5173",
+    // origin: "http://localhost:5173",
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true
   }
@@ -30,12 +35,26 @@ mongoose.connect(process.env.MONGODB_URI)
   process.exit(1);
 })
 
-app.use(cors({       //for cross origin talk
-  origin: ["http://localhost:5173", "http://localhost:3000"], // frontend URL
-  credentials: true,               // if you need cookies later
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS","PATCH"],
-  allowedHeaders: ["Content-Type", "Authorization", "Cookie"]
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://yourdomain.com"
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // allow requests with no origin (Postman, mobile apps)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS not allowed"));
+    }
+  },
+  credentials: true
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

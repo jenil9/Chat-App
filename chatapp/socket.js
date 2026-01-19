@@ -3,11 +3,13 @@ import { io } from "socket.io-client";
 import store from "./src/store/store";
 import { addMessage, addMultipleMessages, updateMessageStatus, setUserOnlineStatus,markMessagesAsReadForFriend,addtoonline,removefromonline } from "./src/store/messagesSlice";
 import { useDispatch } from "react-redux";
+import { setCallingState, setCallOffer } from "./src/store/userSlice";
 let socket;
 
 export const initSocket = (userId) => {
   if (!socket) {
-    socket = io("http://localhost:3000", {
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || "https://localhost:3000";
+    socket = io(socketUrl, {
       auth: { userId }  // attach userId during handshake
     });
 
@@ -80,6 +82,11 @@ const setupSocketListeners = () => {
     store.dispatch(removefromonline(friendId));
   }
 });
+
+socket.on("call-receive",(obj)=>{
+  store.dispatch(setCallingState({"callState":"ringing","didICall":false}));
+  store.dispatch(setCallOffer(obj));
+})
 
 };
 

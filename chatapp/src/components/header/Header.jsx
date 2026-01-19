@@ -2,6 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { getSocket, onlogout } from "../../../socket";
+import {Cable} from "lucide-react"
 
 
 const Header =  () => {
@@ -30,7 +31,9 @@ const user = useSelector((state) => state.user.userinfo || {});
   return (
     <header>
       <div className="w-full rounded-2xl bg-[#1e1f22] text-gray-200 p-4 flex items-center justify-between">
-        <div className="text-xl font-semibold">Chat On</div>
+        <div className="text-xl font-semibold">Chat On
+          <Cable className="inline-block ml-2"/>
+        </div>
         <div className="flex items-center gap-2">
           <Link
             to="/profile"

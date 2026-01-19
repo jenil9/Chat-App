@@ -2,6 +2,7 @@ const Message = require('../models/message');
 const User = require('../models/user');
 
 let onlineUsers = new Map();
+let usersState=new Map();//idle,ringing,onCall,calling
 
 async function onlogout(userId){
   
@@ -24,6 +25,7 @@ function buildConversationId(userA, userB) {
   // Add socket.id to user's set
   if (!onlineUsers.has(userId)) onlineUsers.set(userId, new Set());
   onlineUsers.get(userId).add(socket.id);
+  usersState.set(userId,{"status":"idle"});
 
   // Notify friends that user is online
   const user = await User.findById(userId);
@@ -226,6 +228,7 @@ function buildConversationId(userA, userB) {
     if (onlineUsers.has(userId)) {
       onlineUsers.get(userId).forEach(sid => socket.to(sid).emit("iamoffline", userId));
       onlineUsers.delete(userId);
+      usersState.delete(userId);
       friends.forEach(fId => {
           const fStr = String(fId);
           if (onlineUsers.has(fStr)) {
@@ -236,29 +239,100 @@ function buildConversationId(userA, userB) {
         });
     }
   });
+
+  socket.on("call-request",(obj)=>{
+    const {callerId,receiverId}=obj;
+
+    if(onlineUsers.has(receiverId)&&usersState.get(receiverId).status=="idle")
+    {
+       socket.to(onlineUsers.get(callerId)).emit("call-request-response",{"response":"online"});
+    }
+    else if(onlineUsers.has(receiverId)&&(usersState.get(receiverId).status=="ringing"||onlineUsers.has(receiverId)&&usersState.get(receiverId).status=="onCall"))
+    {
+      socket.to(onlineUsers.get(callerId)).emit("call-request-response",{"response":"onOtherCall"});
+    }
+    else
+    {
+      socket.to(onlineUsers.get(callerId)).emit("call-request-response",{"response":"offline"});
+    }
+  })
+
+  socket.on("end-call",({callerId,receiverId})=>{
+    if(usersState.has(receiverId))
+      {
+        if(usersState.get(receiverId).status!="idle")
+        {
+       socket.to(onlineUsers.get(receiverId)).emit("end-call",{callerId,receiverId});
+        }
+      }
+      if(usersState.has(callerId))
+      {
+        if(usersState.get(callerId).status!="idle")
+        {
+         socket.to(onlineUsers.get(callerId)).emit("end-call",{callerId,receiverId}); 
+        }
+      }
+      if(usersState.has(callerId))
+      {
+        usersState.get(callerId).status="idle";
+      }
+      if(usersState.has(receiverId))
+      {
+        usersState.get(receiverId).status="idle";
+      }
+     
+  })
+
+  socket.on("call-send",async ({callerId,receiverId})=>{
+     if(onlineUsers.has(receiverId)&&usersState.get(receiverId).status=="idle")
+     {
+       usersState.get(callerId).status="calling";
+       usersState.get(receiverId).status="ringing";
+       const user = await User.findById(callerId);
+       socket.to(onlineUsers.get(receiverId)).emit("call-receive",{
+        "callerId":callerId,
+        "callerName":user.username
+       })
+     }
+  })
+
+  socket.on("call-reject",({callerId,receiverId})=>{
+      usersState.get(callerId).status="idle";
+       usersState.get(receiverId).status="idle";
+       socket.to(onlineUsers.get(callerId)).emit("call-rejected",{callerId,receiverId});
+  })
+
+  socket.on("call-accept",({callerId,receiverId})=>{
+     usersState.get(callerId).status="onCall";
+       usersState.get(receiverId).status="onCall";
+       socket.to(onlineUsers.get(callerId)).emit("call-accepted",{callerId,receiverId});
+})
+
+socket.on("sendIceCandidateToSignalingServer", ({iceCandidate,senderId,receiverId}) => {
+       
+         if(!onlineUsers.has(receiverId))
+         {
+          return;
+         }
+        socket.to(onlineUsers.get(receiverId)).emit("receivedIceCandidateFromServer", iceCandidate)
+    })
+
+
+ socket.on("newOffer", (obj) => {
+        
+        
+        socket.to(onlineUsers.get(obj.receiverId)).emit("newOffer", obj)
+    })
+socket.on("newAnswer", (offerpack) => {
+
+        socket.to(onlineUsers.get(offerpack.callerId)).emit("answerresponse", offerpack)
+    })
+
 };
 
 
-
-
 async function videoSocketHandler(io, socket) {
-  const userId = socket.handshake?.auth?.userId
-  if (!userId) {
-    socket.disconnect(true)
-    return
-  }
-
-  socket.on("offer", async (data) => {
-    socket.to(data.to).emit("offer", { sdp: data.sdp, from: socket.id })
-  })
-
-  socket.on("answer", async (data) => {
-    socket.to(data.to).emit("answer", { sdp: data.sdp })
-  })
-
-  socket.on("candidate", async (data) => {
-    socket.to(data.to).emit("candidate", data.candidate)
-  })
+  
 
   
 }
