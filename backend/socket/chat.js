@@ -58,8 +58,6 @@ function buildConversationId(userA, userB) {
       socket.emit('pendingMessages', pendingMessages);
 
       
-
-      
       await Message.updateMany(
         { receiver: userId, status: 'sent' },
         { $set: { status: 'delivered', deliveredAt: new Date() } }
@@ -70,22 +68,23 @@ function buildConversationId(userA, userB) {
     console.log(err)
   }
 
-  // Send a new message
   socket.on('sendMessage', async ({ senderId, receiverId, text }) => {
-    if (!senderId || !receiverId || !text) return;
-    const conversationId = buildConversationId(senderId, receiverId);
-    try {
-      const message = await Message.create({
-        conversationId,
-        sender: senderId,
-        receiver: receiverId,
-        text,
-        status: 'sent'
-      });
+  if (!senderId || !receiverId || !text) return;
+  const conversationId = buildConversationId(senderId, receiverId);
+  try {
+    const message = await Message.create({
+      conversationId,
+      sender: senderId,
+      receiver: receiverId,
+      text,
+      status: 'sent'
+    });
 
-      const receiverSocketId = onlineUsers.get(String(receiverId));
-      if (receiverSocketId) {
-        io.to(receiverSocketId).emit('receiveMessage', {
+    // FIXED: Handle Set of socket IDs properly
+    const receiverSocketIds = onlineUsers.get(String(receiverId));
+    if (receiverSocketIds) {
+      receiverSocketIds.forEach(socketId => {
+        io.to(socketId).emit('receiveMessage', {
           _id: message._id,
           senderId,
           receiverId,
@@ -94,27 +93,28 @@ function buildConversationId(userA, userB) {
           status: 'delivered',
           conversationId: message.conversationId
         });
-        await Message.updateOne(
-          { _id: message._id },
-          { $set: { status: 'delivered', deliveredAt: new Date() } }
-        );
-      } else {
-      }
-      socket.emit('messageSent', { 
-        message: {
-          _id: message._id,
-          senderId,
-          receiverId,
-          text,
-          createdAt: message.createdAt,
-          status: 'sent',
-          conversationId: message.conversationId
-        }
       });
-    } catch (err) {
-      socket.emit('messageError', { error: 'FAILED_TO_SEND' });
+      await Message.updateOne(
+        { _id: message._id },
+        { $set: { status: 'delivered', deliveredAt: new Date() } }
+      );
     }
-  });
+    
+    socket.emit('messageSent', { 
+      message: {
+        _id: message._id,
+        senderId,
+        receiverId,
+        text,
+        createdAt: message.createdAt,
+        status: 'sent',
+        conversationId: message.conversationId
+      }
+    });
+  } catch (err) {
+    socket.emit('messageError', { error: 'FAILED_TO_SEND' });
+  }
+});
 
   // Load messages for a specific conversation
   socket.on('loadMessages', async ({ friendId }) => {
@@ -183,13 +183,15 @@ function buildConversationId(userA, userB) {
         }).lean();
         
         // Notify the sender about read status
-        const senderSocketId = onlineUsers.get(String(peerId));
-        if (senderSocketId) {
-          updatedMessages.forEach(msg => {
-            io.to(senderSocketId).emit('messageStatusUpdate', {
-              messageId: msg._id,
-              status: 'read',
-              timestamp: msg.readAt
+        const senderSocketIds = onlineUsers.get(String(peerId));
+        if (senderSocketIds) {
+          senderSocketIds.forEach(socketId => {
+            updatedMessages.forEach(msg => {
+              io.to(socketId).emit('messageStatusUpdate', {
+                messageId: msg._id,
+                status: 'read',
+                timestamp: msg.readAt
+              });
             });
           });
         }
@@ -198,6 +200,7 @@ function buildConversationId(userA, userB) {
       console.error('Error marking messages as read:', err);
     }
   });
+
   socket.on("check-online-status", (friendId) => {
     const friendIdStr = String(friendId);
     const isOnline = onlineUsers.has(friendIdStr); 
@@ -216,7 +219,7 @@ function buildConversationId(userA, userB) {
           const fStr = String(fId);
           if (onlineUsers.has(fStr)) {
             onlineUsers.get(fStr).forEach(fSocketId => {
-              socket.to(fSocketId).emit("iamoffline", userId);
+              io.to(fSocketId).emit("iamoffline", userId);
             });
           }
         });
@@ -226,107 +229,175 @@ function buildConversationId(userA, userB) {
 
   socket.on("logout", async () => {
     if (onlineUsers.has(userId)) {
-      onlineUsers.get(userId).forEach(sid => socket.to(sid).emit("iamoffline", userId));
+      onlineUsers.get(userId).forEach(sid => io.to(sid).emit("iamoffline", userId));
       onlineUsers.delete(userId);
       usersState.delete(userId);
       friends.forEach(fId => {
           const fStr = String(fId);
           if (onlineUsers.has(fStr)) {
             onlineUsers.get(fStr).forEach(fSocketId => {
-              socket.to(fSocketId).emit("iamoffline", userId);
+              io.to(fSocketId).emit("iamoffline", userId);
             });
           }
         });
     }
   });
 
+  // FIXED: Handle call-request properly with Set of socket IDs
   socket.on("call-request",(obj)=>{
     const {callerId,receiverId}=obj;
 
-    if(onlineUsers.has(receiverId)&&usersState.get(receiverId).status=="idle")
+    if(onlineUsers.has(String(receiverId)) && usersState.has(String(receiverId)) && usersState.get(String(receiverId)).status=="idle")
     {
-       socket.to(onlineUsers.get(callerId)).emit("call-request-response",{"response":"online"});
+       const callerSocketIds = onlineUsers.get(String(callerId));
+       if (callerSocketIds) {
+         callerSocketIds.forEach(socketId => {
+           io.to(socketId).emit("call-request-response",{"response":"online"});
+           console.log("sever say online");
+         });
+       }
     }
-    else if(onlineUsers.has(receiverId)&&(usersState.get(receiverId).status=="ringing"||onlineUsers.has(receiverId)&&usersState.get(receiverId).status=="onCall"))
+    else if(onlineUsers.has(String(receiverId)) && usersState.has(String(receiverId)) && (usersState.get(String(receiverId)).status=="ringing" || usersState.get(String(receiverId)).status=="onCall"))
     {
-      socket.to(onlineUsers.get(callerId)).emit("call-request-response",{"response":"onOtherCall"});
+      const callerSocketIds = onlineUsers.get(String(callerId));
+      if (callerSocketIds) {
+        callerSocketIds.forEach(socketId => {
+          io.to(socketId).emit("call-request-response",{"response":"onOtherCall"});
+          console.log("sever say on other cal");
+        });
+      }
     }
     else
     {
-      socket.to(onlineUsers.get(callerId)).emit("call-request-response",{"response":"offline"});
+      const callerSocketIds = onlineUsers.get(String(callerId));
+      if (callerSocketIds) {
+        callerSocketIds.forEach(socketId => {
+          io.to(socketId).emit("call-request-response",{"response":"offline"});
+          console.log("sever say offline");
+        });
+      }
     }
   })
 
   socket.on("end-call",({callerId,receiverId})=>{
-    if(usersState.has(receiverId))
-      {
-        if(usersState.get(receiverId).status!="idle")
-        {
-       socket.to(onlineUsers.get(receiverId)).emit("end-call",{callerId,receiverId});
+    if(usersState.has(String(receiverId))) {
+      if(usersState.get(String(receiverId)).status!="idle") {
+        const receiverSocketIds = onlineUsers.get(String(receiverId));
+        if (receiverSocketIds) {
+          receiverSocketIds.forEach(socketId => {
+            io.to(socketId).emit("end-call",{callerId,receiverId});
+          });
         }
       }
-      if(usersState.has(callerId))
-      {
-        if(usersState.get(callerId).status!="idle")
-        {
-         socket.to(onlineUsers.get(callerId)).emit("end-call",{callerId,receiverId}); 
+    }
+    if(usersState.has(String(callerId))) {
+      if(usersState.get(String(callerId)).status!="idle") {
+        const callerSocketIds = onlineUsers.get(String(callerId));
+        if (callerSocketIds) {
+          callerSocketIds.forEach(socketId => {
+            io.to(socketId).emit("end-call",{callerId,receiverId});
+          });
         }
       }
-      if(usersState.has(callerId))
-      {
-        usersState.get(callerId).status="idle";
-      }
-      if(usersState.has(receiverId))
-      {
-        usersState.get(receiverId).status="idle";
-      }
-     
+    }
+    if(usersState.has(String(callerId))) {
+      usersState.get(String(callerId)).status="idle";
+    }
+    if(usersState.has(String(receiverId))) {
+      usersState.get(String(receiverId)).status="idle";
+    }
   })
 
   socket.on("call-send",async ({callerId,receiverId})=>{
-     if(onlineUsers.has(receiverId)&&usersState.get(receiverId).status=="idle")
-     {
-       usersState.get(callerId).status="calling";
-       usersState.get(receiverId).status="ringing";
-       const user = await User.findById(callerId);
-       socket.to(onlineUsers.get(receiverId)).emit("call-receive",{
-        "callerId":callerId,
-        "callerName":user.username
-       })
-     }
+    if(onlineUsers.has(String(receiverId)) && usersState.has(String(receiverId)) && usersState.get(String(receiverId)).status=="idle")
+    {
+      usersState.get(String(callerId)).status="calling";
+      usersState.get(String(receiverId)).status="ringing";
+      const user = await User.findById(callerId);
+      // FIXED: Iterate through all socket IDs for the receiver
+      const receiverSocketIds = onlineUsers.get(String(receiverId));
+      if (receiverSocketIds) {
+        receiverSocketIds.forEach(socketId => {
+          io.to(socketId).emit("call-receive",{
+            "callerId":callerId,
+            "callerName":user.username
+          });
+        });
+      }
+    }
   })
 
+  // FIXED: Handle call-reject properly with Set of socket IDs
   socket.on("call-reject",({callerId,receiverId})=>{
-      usersState.get(callerId).status="idle";
-       usersState.get(receiverId).status="idle";
-       socket.to(onlineUsers.get(callerId)).emit("call-rejected",{callerId,receiverId});
+    if(usersState.has(String(callerId))) {
+      usersState.get(String(callerId)).status="idle";
+    }
+    if(usersState.has(String(receiverId))) {
+      usersState.get(String(receiverId)).status="idle";
+    }
+    const callerSocketIds = onlineUsers.get(String(callerId));
+    if (callerSocketIds) {
+      callerSocketIds.forEach(socketId => {
+        io.to(socketId).emit("call-rejected",{callerId,receiverId});
+      });
+    }
   })
 
+  // FIXED: Handle call-accept properly with Set of socket IDs
   socket.on("call-accept",({callerId,receiverId})=>{
-     usersState.get(callerId).status="onCall";
-       usersState.get(receiverId).status="onCall";
-       socket.to(onlineUsers.get(callerId)).emit("call-accepted",{callerId,receiverId});
-})
+    if(usersState.has(String(callerId))) {
+      usersState.get(String(callerId)).status="onCall";
+    }
+    if(usersState.has(String(receiverId))) {
+      usersState.get(String(receiverId)).status="onCall";
+    }
+    console.log("call accept")
+    const callerSocketIds = onlineUsers.get(String(callerId));
+    if (callerSocketIds) {
+      callerSocketIds.forEach(socketId => {
+        io.to(socketId).emit("call-accepted",{callerId,receiverId});
+      });
+    }
+  })
 
-socket.on("sendIceCandidateToSignalingServer", ({iceCandidate,senderId,receiverId}) => {
-       
-         if(!onlineUsers.has(receiverId))
-         {
-          return;
-         }
-        socket.to(onlineUsers.get(receiverId)).emit("receivedIceCandidateFromServer", iceCandidate)
-    })
+  // FIXED: Handle ICE candidates properly with Set of socket IDs
+  socket.on("sendIceCandidateToSignalingServer", ({iceCandidate,senderId,receiverId}) => {
+    if(!onlineUsers.has(String(receiverId))) {
+      return;
+    }
+    const receiverSocketIds = onlineUsers.get(String(receiverId));
+    if (receiverSocketIds) {
+      receiverSocketIds.forEach(socketId => {
+        io.to(socketId).emit("receivedIceCandidateFromServer", iceCandidate);
+      });
+    }
+  })
 
+  // FIXED: Handle newOffer properly with Set of socket IDs
+  socket.on("newOffer", (obj) => {
+    if(!onlineUsers.has(String(obj.receiverId))) {
+      return;
+    }
+    const receiverSocketIds = onlineUsers.get(String(obj.receiverId));
+    if (receiverSocketIds) {
+      receiverSocketIds.forEach(socketId => {
+        io.to(socketId).emit("newOffer", obj);
+      });
+    }
+  })
 
- socket.on("newOffer", (obj) => {
-        
-        
-        socket.to(onlineUsers.get(obj.receiverId)).emit("newOffer", obj)
-    })
-socket.on("newAnswer", (offerpack) => {
-
-        socket.to(onlineUsers.get(offerpack.callerId)).emit("answerresponse", offerpack)
-    })
+  // FIXED: Handle newAnswer properly with Set of socket IDs
+  socket.on("newAnswer", (offerpack) => {
+    if(!onlineUsers.has(String(offerpack.callerId))) {
+      return;
+    }
+    const callerSocketIds = onlineUsers.get(String(offerpack.callerId));
+    if (callerSocketIds) {
+      callerSocketIds.forEach(socketId => {
+        io.to(socketId).emit("answerresponse", offerpack);
+      });
+    }
+  })
 
 };
 

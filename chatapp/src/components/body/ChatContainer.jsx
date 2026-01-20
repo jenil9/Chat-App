@@ -39,6 +39,10 @@ const ChatContainer = () => {
      {
       setIncomingCall(true);
      }
+     else
+     {
+      setIncomingCall(false);
+     }
 
      return ()=>{
       setIncomingCall(false);
@@ -47,7 +51,7 @@ const ChatContainer = () => {
   },[callOffer])
   
   useEffect(()=>{
-     if(callingState.callState=="onCall")
+     if(callingState.didICall==false&&callingState.callState=="onCall")
      {
       setIsCalling(true);
      }

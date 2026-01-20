@@ -62,49 +62,49 @@ const ChatWindow = () => {
   }, [friendId, currentUserId]);
 
   // Mark messages as read after messages are loaded
-  useEffect(() => {
-    const markAsRead = async () => {
-      if (friendId && currentUserId && messages.length > 0) {
-        // Check if there are any unread messages for this friend
-        const hasUnreadMessages = messages.some(msg => 
-          msg.senderId === friendId && 
-          msg.receiverId === currentUserId && 
-          msg.status !== 'read'
-        )
-        
-        if (hasUnreadMessages) {
-          await markMessagesAsRead(friendId)
-          dispatch(markMessagesAsReadForFriend(friendId))
-        }
+useEffect(() => {
+  const markAsRead = async () => {
+    if (friendId && currentUserId && messages.length > 0) {
+      const hasUnreadMessages = messages.some(msg => 
+        msg.senderId === friendId && 
+        msg.receiverId === currentUserId && 
+        msg.status !== 'read'
+      )
+      
+      if (hasUnreadMessages) {
+        await markMessagesAsRead(friendId)
+        // FIXED: Pass both friendId and currentUserId
+        dispatch(markMessagesAsReadForFriend({ friendId, currentUserId }))
       }
     }
-    
-    // Add a small delay to ensure messages are fully loaded
-    const timeoutId = setTimeout(markAsRead, 100)
-    // messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-    
-    return () => clearTimeout(timeoutId)
-  }, [messages, friendId, currentUserId]) // Now depends on messages to trigger after loading
+  }
+  
+  const timeoutId = setTimeout(markAsRead, 100)
+  return () => clearTimeout(timeoutId)
+}, [messages, friendId, currentUserId])// Now depends on messages to trigger after loading
 
   // Mark messages as read when component becomes visible (user switches to this chat)
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (!document.hidden && friendId && messages.length > 0) {
-        const hasUnreadMessages = messages.some(msg => 
-          msg.senderId === friendId && 
-          msg.receiverId === currentUserId && 
-          msg.status !== 'read'
-        )
-        
-        if (hasUnreadMessages) {
-          markMessagesAsRead(friendId)
-        }
+  // Mark messages as read when component becomes visible
+useEffect(() => {
+  const handleVisibilityChange = () => {
+    if (!document.hidden && friendId && messages.length > 0) {
+      const hasUnreadMessages = messages.some(msg => 
+        msg.senderId === friendId && 
+        msg.receiverId === currentUserId && 
+        msg.status !== 'read'
+      )
+      
+      if (hasUnreadMessages) {
+        markMessagesAsRead(friendId)
+        // FIXED: Pass both friendId and currentUserId
+        dispatch(markMessagesAsReadForFriend({ friendId, currentUserId }))
       }
     }
+  }
 
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
-  }, [friendId, currentUserId, messages])
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+  return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+}, [friendId, currentUserId, messages])
 
   useEffect(() => {
     const container = containerref.current;

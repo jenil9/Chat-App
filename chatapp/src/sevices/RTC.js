@@ -21,6 +21,7 @@ export default class RTC
     this.hasMic = null;
     this.localId=localId;
     this.remoteId=remoteId;
+    this.pendingIceCandidates = [];
     
   }
   
@@ -67,10 +68,34 @@ export default class RTC
   }
 }
 
-  addNewIceCandidate(iceCandidate)
-  {
-    this.pc.addIceCandidate(iceCandidate);
+async setRemoteOffer(offer) {
+  await this.pc.setRemoteDescription(offer);
+
+  // add queued ICE
+  for (const candidate of this.pendingIceCandidates) {
+    await this.pc.addIceCandidate(candidate);
   }
+  this.pendingIceCandidates = [];
+}
+
+
+
+  async addNewIceCandidate(iceCandidate) {
+  if (!this.pc) return;
+
+  if (!this.pc.remoteDescription) {
+    // queue ICE until remote description is set
+    this.pendingIceCandidates.push(iceCandidate);
+    return;
+  }
+
+  try {
+    await this.pc.addIceCandidate(iceCandidate);
+  } catch (err) {
+    console.error("Error adding ICE candidate", err);
+  }
+}
+
 async  createOffer({callerId,receiverId})
   {
      try{
@@ -86,30 +111,54 @@ async  createOffer({callerId,receiverId})
             "didIOffer":true
         }
         this.socket.emit('newOffer',offerpack); //send offer to signalingServer
+        console.log("offer send")
     }catch(err){
-        
+        console.error("Error creating offer:", err);
     }
   }
 
 async answerOffer()
   {
-    //  await getStreams()
-    // await createPeerConnection(offerObj);
-    const answer = await this.pc.createAnswer({}); 
-    await this.pc.setLocalDescription(answer); 
-   
-    const offerpack={
-            "offer":answer,
-            "callerId":this.remoteId,
-            "receiverId":this.localId,
-            "didIOffer":false
-        } 
-    
-    await this.socket.emit('newAnswer',offerpack)
+    try {
+      const answer = await this.pc.createAnswer({}); 
+      await this.pc.setLocalDescription(answer); 
+      
+      const offerpack={
+          "offer":answer,
+          "callerId":this.remoteId,
+          "receiverId":this.localId,
+          "didIOffer":false
+      } 
+      
+       this.socket.emit('newAnswer',offerpack)
+       console.log("anser sendf")
+    } catch(err) {
+      console.error("Error answering offer:", err);
+    }
   }
 
-  async  addAnswer(offer)
-  {
-await this.pc.setRemoteDescription(offer);
+  async addAnswer(answer) {
+  await this.pc.setRemoteDescription(answer);
+
+  for (const candidate of this.pendingIceCandidates) {
+    await this.pc.addIceCandidate(candidate);
+  }
+  this.pendingIceCandidates = [];
+}
+
+
+  // FIXED: Added missing close() method
+  close() {
+    if (this.pc) {
+      this.pc.close();
+      this.pc = null;
+    }
+    if (this.localStream) {
+      this.localStream.getTracks().forEach(track => track.stop());
+      this.localStream = null;
+    }
+    this.remoteStream = null;
+    this.pendingIceCandidates = [];
+
   }
 }

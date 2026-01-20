@@ -9,11 +9,15 @@ const IncomingCall = () => {
   const dispatch=useDispatch();
   const socket=getSocket();
   const user=useSelector((state)=>state.user.userinfo)
+  const navigate = useNavigate(); // FIXED: Move hook to top level
+  
   const handleAccept=()=>{
     dispatch(setCallingState({"callState":"onCall","didICall":false}));
     dispatch(setCallOffer({}));
     socket.emit("call-accept",{"callerId":callOffer.callerId,"receiverId":user.id})
-    useNavigate('/friends/'+callOffer.callerId)
+    console.log("call accept")
+    navigate('/friends/'+callOffer.callerId) // FIXED: Use navigate, not useNavigate()
+    
   }
   const handleReject=()=>{
    dispatch(setCallOffer({}))
@@ -40,9 +44,6 @@ const IncomingCall = () => {
 
       {/* Caller Info */}
       <div className="flex items-center gap-3">
-        {/* <div className="h-10 w-10 rounded-full bg-green-600 flex items-center justify-center font-bold">
-          N
-        </div> */}
         <div className="flex flex-col">
           <span className="font-medium">{callOffer.callerName}</span>
           <span className="text-xs text-gray-400">Video calling…</span>

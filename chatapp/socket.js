@@ -84,6 +84,7 @@ const setupSocketListeners = () => {
 });
 
 socket.on("call-receive",(obj)=>{
+  console.log("RECEIVED CALL from", obj.callerId, "name:", obj.callerName);
   store.dispatch(setCallingState({"callState":"ringing","didICall":false}));
   store.dispatch(setCallOffer(obj));
 })
