@@ -105,14 +105,7 @@ if (this.pc) return;
 //     this.onRemoteStream(this.remoteStream);
 //   }
   this.pc.ontrack = (event) => {
-  if (!this.remoteStream) {
-    this.remoteStream = new MediaStream();
-  }
-
-  event.streams[0].getTracks().forEach(track => {
-    this.remoteStream.addTrack(track);
-  });
-
+  this.remoteStream = event.streams[0]; // browser-managed stream
   this.onRemoteStream?.(this.remoteStream);
 };
 

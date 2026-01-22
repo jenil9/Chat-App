@@ -68,41 +68,28 @@ const VideoWindow = ({ onEndCall }) => {
        }
      }
  const initRTC = async () => {
-  if (pcRef.current) return; // Already initialized
-  // pcRef.current = new RTC(socket, userId, friendId);
+  if (pcRef.current) return;
+
   pcRef.current = new RTC(
-  socket,
-  userId,
-  friendId,
-  (stream) => {
-    const video = remoteVideoRef.current;
-    if (!video) return;
+    socket,
+    userId,
+    friendId,
+    (stream) => {
+      if (!remoteVideoRef.current) return;
 
-    if (video.srcObject !== stream) {
-      video.srcObject = stream;
-
-      video.onloadedmetadata = () => {
-        video.play().catch(err => {
-          console.warn("Autoplay blocked:", err);
-        });
-      };
-
-      console.log("Remote stream attached");
+      remoteVideoRef.current.srcObject = stream;
+      remoteVideoRef.current.play().catch(() => {});
     }
-  }
-);
+  );
 
+  await pcRef.current.getStreams();
+  await pcRef.current.createConnection(); // 🔥 move here
 
-
-  try {
-    await pcRef.current.getStreams();
-    if (localVideoRef.current && pcRef.current.localStream) {
-      localVideoRef.current.srcObject = pcRef.current.localStream;
-    }
-  } catch (err) {
-    console.error(err);
+  if (localVideoRef.current) {
+    localVideoRef.current.srcObject = pcRef.current.localStream;
   }
 };
+
 
 
     
@@ -126,7 +113,7 @@ const VideoWindow = ({ onEndCall }) => {
       // ✅ Create peer connection and offer
       try {
         await initRTC();
-        await pcRef.current.createConnection();
+        // await pcRef.current.createConnection();
         await pcRef.current.createOffer({
           callerId: userId,
           receiverId: friendId
@@ -147,7 +134,7 @@ const VideoWindow = ({ onEndCall }) => {
       try {
         // ✅ Create connection, set remote offer, then answer
         await initRTC();
-        await pcRef.current.createConnection();
+        // await pcRef.current.createConnection();
         await pcRef.current.setRemoteOffer(offerPack.offer);
         await pcRef.current.answerOffer();
         console.log("Answer sent");
@@ -162,7 +149,7 @@ const VideoWindow = ({ onEndCall }) => {
 
     const handleIceCandidate = (iceCandidate) => {
       if (!pcRef.current) return;
-      if (callingState.callState !== "onCall") return;
+      // if (callingState.callState !== "onCall") return;
       pcRef.current.addNewIceCandidate(iceCandidate);
     };
 
@@ -246,16 +233,16 @@ const VideoWindow = ({ onEndCall }) => {
   // // }, [friendState]);
   // });
 
-  useEffect(() => {
-    console.log("remote stream",pcRef.current?.remoteStream)
-  if (friendState !== "onCall") return;
-  if (!pcRef.current?.remoteStream) return;
+//   useEffect(() => {
+//     console.log("remote stream",pcRef.current?.remoteStream)
+//   if (friendState !== "onCall") return;
+//   if (!pcRef.current?.remoteStream) return;
 
-  if (remoteVideoRef.current) {
-    remoteVideoRef.current.srcObject = pcRef.current.remoteStream;
-    console.log("Remote stream attached");
-  }
-}, [friendState]);  
+//   if (remoteVideoRef.current) {
+//     remoteVideoRef.current.srcObject = pcRef.current.remoteStream;
+//     console.log("Remote stream attached");
+//   }
+// }, [friendState]);  
 // useEffect(() => {
 //   if (!remoteStream || !remoteVideoRef.current) return;
 
