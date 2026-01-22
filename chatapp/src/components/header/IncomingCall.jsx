@@ -14,9 +14,17 @@ const IncomingCall = () => {
   const handleAccept=()=>{
     dispatch(setCallingState({"callState":"onCall","didICall":false}));
     dispatch(setCallOffer({}));
-    socket.emit("call-accept",{"callerId":callOffer.callerId,"receiverId":user.id})
-    console.log("call accept")
+    // socket.emit("call-accept",{"callerId":callOffer.callerId,"receiverId":user.id})
+    // console.log("call accept")
     navigate('/friends/'+callOffer.callerId) // FIXED: Use navigate, not useNavigate()
+
+    setTimeout(() => {
+    socket.emit("call-accept", {
+      callerId: callOffer.callerId,
+      receiverId: user.id
+    });
+    console.log("call accept emitted");
+  }, 50); // 50ms is usually enough
     
   }
   const handleReject=()=>{
