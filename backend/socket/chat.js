@@ -117,34 +117,40 @@ function buildConversationId(userA, userB) {
 });
 
   // Load messages for a specific conversation
-  socket.on('loadMessages', async ({ friendId }) => {
+  socket.on('loadMessages', async ({ friendId , skip }) => {
     if (!friendId) return;
     const conversationId = buildConversationId(userId, friendId);
     try {
       // Load all messages for this conversation
-      const messages = await Message.find({ conversationId })
-        .sort({ createdAt: 1 })
-        .lean();
+     const PAGE_SIZE = 10;
+
+const messages = await Message.find({ conversationId })
+  .sort({ createdAt: -1 })   // oldest → newest
+  .skip(skip)               // skip already loaded messages
+  .limit(PAGE_SIZE)         // get next 10
+  .lean();
+
+        
       
       // Also check for any pending messages for this user that might not be in the conversation yet
-      const pendingMessages = await Message.find({ 
-        receiver: userId, 
-        status: 'sent',
-        conversationId: { $ne: conversationId }
-      }).lean();
+      // const pendingMessages = await Message.find({ 
+      //   receiver: userId, 
+      //   status: 'sent',
+      //   conversationId: { $ne: conversationId }
+      // }).lean();
       
-      // Update pending messages to delivered status
-      if (pendingMessages.length > 0) {
-        await Message.updateMany(
-          { _id: { $in: pendingMessages.map(msg => msg._id) } },
-          { $set: { status: 'delivered', deliveredAt: new Date() } }
-        );
-      }
+      // // Update pending messages to delivered status
+      // if (pendingMessages.length > 0) {
+      //   await Message.updateMany(
+      //     { _id: { $in: pendingMessages.map(msg => msg._id) } },
+      //     { $set: { status: 'delivered', deliveredAt: new Date() } }
+      //   );
+      // }
       
-      // Combine conversation messages and pending messages
-      const allMessages = [...messages, ...pendingMessages];
+      // // Combine conversation messages and pending messages
+      // const allMessages = [...messages, ...pendingMessages];
       
-      const formattedMessages = allMessages.map((doc) => ({
+      const formattedMessages = messages.map((doc) => ({
         _id: doc._id,
         senderId: doc.sender,
         receiverId: doc.receiver,

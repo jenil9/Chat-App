@@ -119,10 +119,10 @@ export const sendMessage = (senderId, receiverId, text) => {
 };
 
 // Helper function to load messages for a conversation
-export const loadMessages = async (friendId) => {
+export const loadMessages = async (friendId,skip) => {
   try {
     const socketInstance = await waitForSocket();
-    socketInstance.emit('loadMessages', { friendId });
+    socketInstance.emit('loadMessages', { friendId,skip });
   } catch (error) {
     console.warn('Socket not available for loading messages:', error);
   }
