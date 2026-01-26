@@ -405,6 +405,32 @@ const messages = await Message.find({ conversationId })
     }
   })
 
+  // Handle mic toggle
+  socket.on("mic-toggle", ({ callerId, receiverId, isMuted }) => {
+    if (!onlineUsers.has(String(receiverId))) {
+      return;
+    }
+    const receiverSocketIds = onlineUsers.get(String(receiverId));
+    if (receiverSocketIds) {
+      receiverSocketIds.forEach(socketId => {
+        io.to(socketId).emit("mic-toggle", { isMuted });
+      });
+    }
+  })
+
+  // Handle camera toggle
+  socket.on("camera-toggle", ({ callerId, receiverId, cameraOff }) => {
+    if (!onlineUsers.has(String(receiverId))) {
+      return;
+    }
+    const receiverSocketIds = onlineUsers.get(String(receiverId));
+    if (receiverSocketIds) {
+      receiverSocketIds.forEach(socketId => {
+        io.to(socketId).emit("camera-toggle", { cameraOff });
+      });
+    }
+  })
+
 };
 
 

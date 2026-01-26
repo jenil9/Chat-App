@@ -104,9 +104,37 @@ if (this.pc) return;
 //   if (this.onRemoteStream) {
 //     this.onRemoteStream(this.remoteStream);
 //   }
-  this.pc.ontrack = (event) => {
-  this.remoteStream = event.streams[0]; // browser-managed stream
+//   this.pc.ontrack = (event) => {
+//   this.remoteStream = event.streams[0]; // browser-managed stream
+//   this.onRemoteStream?.(this.remoteStream);
+// };
+this.pc.ontrack = (event) => {
+  this.remoteStream = event.streams[0];
+  
+  // Monitor track state changes
+  event.track.onended = () => {
+    console.log(`${event.track.kind} track ended`);
+    this.onRemoteStream?.(this.remoteStream);
+  };
+  
+  event.track.onmute = () => {
+    console.log(`${event.track.kind} track muted`);
+    this.onRemoteStream?.(this.remoteStream);
+  };
+  
+  event.track.onunmute = () => {
+    console.log(`${event.track.kind} track unmuted`);
+    this.onRemoteStream?.(this.remoteStream);
+  };
+  
   this.onRemoteStream?.(this.remoteStream);
+};
+
+// Listen for ALL track state changes via onconnectionstatechange
+this.pc.onconnectionstatechange = () => {
+  if (this.remoteStream && this.onRemoteStream) {
+    this.onRemoteStream(this.remoteStream);
+  }
 };
 
 
