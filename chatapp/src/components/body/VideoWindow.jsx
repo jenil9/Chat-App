@@ -5,6 +5,9 @@ import {Camera,Mic,MicOff} from "lucide-react"
 import { useSelector,useDispatch } from 'react-redux'
 import { setCallingState } from '../../store/userSlice'
 import RTC from '../../sevices/RTC'
+import Lottie from "lottie-react";
+import callingAnim from "../../assets/calling.json"; // download from lottiefiles
+import offlineAnim from "../../assets/offline.json";
 
 const VideoWindow = ({ onEndCall }) => {
   const { friendId } = useParams()
@@ -21,7 +24,11 @@ const VideoWindow = ({ onEndCall }) => {
 const [remoteMuted, setRemoteMuted] = useState(false);
 
 
-  
+  const showCallingUI =
+  callingState.callState === "calling" &&
+  callingState.didICall === true &&
+  friendState === "online";
+
   
   let pcRef=useRef(null);
   const localVideoRef = useRef(null);
@@ -488,34 +495,77 @@ const [remoteMuted, setRemoteMuted] = useState(false);
 
   {/* OFFLINE STATE */}
   {friendState === "offline" && (
-    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 z-10">
-      <img
-        src={`https://api.dicebear.com/9.x/identicon/svg?seed=${friendId}`}
-        className="w-20 h-20 rounded-full"
-      />
-      <p className="mt-2 text-sm text-white/80">Offline</p>
+  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black">
+
+    <Lottie
+      animationData={offlineAnim}
+      loop
+      className="w-40 opacity-40"
+    />
+
+    <p className="mt-4 text-sm text-white font-medium">
+      User is offline
+    </p>
+
+    <p className="text-xs text-white/50">
+      Try again later
+    </p>
+  </div>
+)}
+ {showCallingUI && (
+  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-zinc-900 via-black to-zinc-800 overflow-hidden">
+
+    {/* Lottie Background (clipped & scaled) */}
+    <div className="absolute inset-0 flex items-center justify-center opacity-20 pointer-events-none">
+      <div className="w-full h-full max-w-[600px] max-h-[600px]">
+        <Lottie
+          animationData={callingAnim}
+          loop
+          className="w-full h-full"
+        />
+      </div>
     </div>
-  )}
-  {callingState.callState === "calling" && (
-    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70">
-      <img
-        src={`https://api.dicebear.com/9.x/identicon/svg?seed=${friendId}`}
-        className="w-20 h-20 rounded-full"
-      />
-      <p className="mt-2 text-sm text-white/80">Calling</p>
-    </div>
-  )}
+
+    {/* Text */}
+    <p className="mt-6 text-lg font-medium tracking-wide text-white z-10">
+      Calling<span className="animate-pulse">…</span>
+    </p>
+
+    <p className="mt-1 text-xs text-white/60 z-10">
+      Waiting for them to answer
+    </p>
+  </div>
+)}
+
+
 
   {/* ON OTHER CALL STATE */}
   {friendState === "onOtherCall" && (
-    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 z-10">
+  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-gradient-to-b from-zinc-950 via-black to-zinc-900 backdrop-blur-sm">
+
+    {/* Avatar */}
+    <div className="relative">
+      {/* busy ring */}
+      <div className="absolute inset-0 rounded-full border border-amber-500/40 animate-pulse"></div>
+
       <img
-        src={`https://api.dicebear.com/9.x/identicon/svg?seed=${friendId}`}
-        className="w-20 h-20 rounded-full"
+        src={`https://api.dicebear.com/9.x/initials/svg?seed=${friendId}&backgroundColor=111827`}
+        className="relative w-20 h-20 rounded-full border border-white/10 shadow-lg"
       />
-      <p className="mt-2 text-sm text-white/80">On another call</p>
     </div>
-  )}
+
+    {/* Status */}
+    <p className="mt-4 text-sm font-medium text-white">
+      On another call
+    </p>
+
+    <p className="mt-1 text-xs text-white/50 text-center max-w-[220px]">
+      They’re currently busy.  
+      Please try again in a moment.
+    </p>
+  </div>
+)}
+
 </div>
 
         
@@ -531,7 +581,7 @@ const [remoteMuted, setRemoteMuted] = useState(false);
               /* ===== CALLING ===== */
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70">
                 <img src={`https://api.dicebear.com/9.x/identicon/svg?seed=${Math.random()}`} className="w-20 h-20 rounded-full" />
-                <p className="mt-2 text-sm text-white/80">Calling…</p>
+               
               </div>
             ) : callingState.callState === "offline" ? (
               /* ===== OFFLINE ===== */
