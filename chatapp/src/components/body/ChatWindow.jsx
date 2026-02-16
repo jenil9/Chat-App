@@ -165,14 +165,20 @@ const ChatWindow = () => {
   }
   
   return (
-    <section className="h-full flex flex-col bg-[#313338] text-gray-200 overflow-hidden">
+    <section className="h-full w-full flex flex-col bg-gradient-to-br from-slate-900 to-slate-950 text-slate-50 overflow-hidden">
       {/* messages area */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-3 min-h-0 max-h-full" ref={containerref} onScroll={handleScroll}>
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-3 min-h-0 w-full" ref={containerref} onScroll={handleScroll}>
         <div ref={messagesTopRef} />
         {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center text-gray-400 text-sm">
-              No messages yet. Start the conversation!
+          <div className="flex items-center justify-center h-full animate-fade-in">
+            <div className="text-center">
+              <div className="w-24 h-24 backdrop-blur-lg bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-400/30 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-cyan-500/20">
+                <svg className="w-12 h-12 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold text-slate-100 mb-2">No messages yet</h3>
+              <p className="text-slate-400 mb-6 max-w-sm">Start a conversation by sending your first message</p>
             </div>
           </div>
         ) : (
@@ -180,18 +186,21 @@ const ChatWindow = () => {
             {currmsg.map((msg) => (
               <div
                 key={msg._id}
-                className={`flex ${msg.senderId === currentUserId ? 'justify-end' : 'justify-start'}`}
+                className={`flex ${msg.senderId === currentUserId ? 'justify-end' : 'justify-start'} animate-slide-up`}
               >
+                {msg.senderId !== currentUserId && (
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 mr-2 flex-shrink-0 flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-purple-500/30" />
+                )}
                 <div
-                  className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg break-words overflow-hidden ${
+                  className={`max-w-[70%] px-4 py-3 rounded-2xl break-words overflow-hidden backdrop-blur-xl transition-all duration-300 hover:shadow-lg ${
                     msg.senderId === currentUserId
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-700 text-gray-200'
+                      ? 'bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-400/30 text-slate-50 rounded-br-md shadow-lg shadow-cyan-500/10 hover:shadow-cyan-500/20'
+                      : 'bg-white/5 border border-white/10 text-slate-100 rounded-bl-md shadow-lg shadow-black/20 hover:bg-white/10'
                   }`}
                 >
-                  <div className="text-sm">{msg.text}</div>
-                  <div className={`text-xs mt-1 ${
-                    msg.senderId === currentUserId ? 'text-blue-100' : 'text-gray-400'
+                  <div className="text-sm leading-relaxed">{msg.text}</div>
+                  <div className={`text-xs mt-2 font-medium ${
+                    msg.senderId === currentUserId ? 'text-cyan-300' : 'text-slate-500'
                   }`}>
                     {new Date(msg.createdAt).toLocaleTimeString([], { 
                       hour: '2-digit', 
@@ -213,19 +222,21 @@ const ChatWindow = () => {
       </div>
 
       {/* input area */}
-      <div className="p-4 border-t border-gray-700 flex-shrink-0">
-        <div className="flex items-center gap-2 bg-[#1e1f22] border border-gray-700 rounded-xl px-3 py-2">
-          <button className="text-gray-400">📎</button>
-          <input
-            type="text"
+      <div className="p-4 border-t border-slate-700/50 flex-shrink-0 backdrop-blur-lg bg-white/5">
+        <div className="flex items-end gap-2">
+          <button className="flex-shrink-0 w-10 h-10 backdrop-blur-lg bg-white/5 hover:bg-white/10 border border-white/10 rounded-full flex items-center justify-center text-slate-300 transition-all duration-300 hover:scale-110 active:scale-95">
+            📎
+          </button>
+          <textarea
             placeholder="Type a message..."
-            className="flex-1 bg-transparent outline-none text-sm"
+            className="flex-1 px-4 py-3 backdrop-blur-xl bg-white/5 border border-white/10 focus:border-cyan-400/50 focus:bg-white/10 rounded-2xl text-slate-100 placeholder:text-slate-500 outline-none resize-none transition-all duration-300 focus:shadow-lg focus:shadow-cyan-500/10 max-h-24"
             value={message}
             onChange={(e) => setmessage(e.target.value)}
             onKeyPress={handleKeyPress}
+            rows="1"
           />
           <button 
-            className="bg-blue-600 hover:bg-blue-500 text-white rounded-lg px-3 py-1"
+            className="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white rounded-full flex items-center justify-center shadow-lg shadow-cyan-500/30 transition-all duration-300 hover:scale-110 active:scale-95 font-semibold"
             onClick={handleClick}
           >
             ➤

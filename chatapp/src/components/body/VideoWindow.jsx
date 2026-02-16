@@ -454,7 +454,7 @@ const [remoteMuted, setRemoteMuted] = useState(false);
 
 
   return (
-    <div className="flex flex-col h-screen bg-neutral-900">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
       
       {/* Video Stage */}
       <div className="relative flex-1 overflow-hidden">
@@ -477,10 +477,10 @@ const [remoteMuted, setRemoteMuted] = useState(false);
 
   {/* Avatar when remote camera is OFF */}
   {friendState === "onCall" && remoteCameraOff && (
-    <div className="absolute inset-0 flex items-center justify-center bg-zinc-900">
+    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-950 animate-fade-in">
       <img
         src={`https://api.dicebear.com/9.x/identicon/svg?seed=${friendId}`}
-        className="w-24 h-24 rounded-full"
+        className="w-32 h-32 rounded-full shadow-2xl shadow-purple-500/50"
         alt="Remote avatar"
       />
     </div>
@@ -488,14 +488,14 @@ const [remoteMuted, setRemoteMuted] = useState(false);
 
   {/* Remote mic muted indicator */}
   {friendState === "onCall" && remoteMuted && (
-    <div className="absolute top-4 right-4 bg-black/70 p-2 rounded-full z-10">
+    <div className="absolute top-4 right-4 backdrop-blur-lg bg-red-500/20 border border-red-400/50 p-3 rounded-full z-10 shadow-lg shadow-red-500/30">
       <MicOff className="w-5 h-5 text-red-400" />
     </div>
   )}
 
   {/* OFFLINE STATE */}
   {friendState === "offline" && (
-  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black">
+  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black animate-fade-in">
 
     <Lottie
       animationData={offlineAnim}
@@ -503,19 +503,25 @@ const [remoteMuted, setRemoteMuted] = useState(false);
       className="w-40 opacity-40"
     />
 
-    <p className="mt-4 text-sm text-white font-medium">
+    <p className="mt-4 text-sm text-slate-200 font-medium">
       User is offline
     </p>
 
-    <p className="text-xs text-white/50">
+    <p className="text-xs text-slate-400">
       Try again later
     </p>
   </div>
 )}
  {showCallingUI && (
-  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-zinc-900 via-black to-zinc-800 overflow-hidden">
+  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 via-slate-950 to-black overflow-hidden animate-fade-in">
 
-    {/* Lottie Background (clipped & scaled) */}
+    {/* Animated background gradient */}
+    <div className="absolute inset-0 flex items-center justify-center opacity-20 pointer-events-none">
+      <div className="absolute w-96 h-96 bg-cyan-500 rounded-full blur-3xl animate-pulse-slow"></div>
+      <div className="absolute w-96 h-96 bg-blue-500 rounded-full blur-3xl animate-pulse-slow animation-delay-1000"></div>
+    </div>
+
+    {/* Lottie Animation */}
     <div className="absolute inset-0 flex items-center justify-center opacity-20 pointer-events-none">
       <div className="w-full h-full max-w-[600px] max-h-[600px]">
         <Lottie
@@ -527,13 +533,15 @@ const [remoteMuted, setRemoteMuted] = useState(false);
     </div>
 
     {/* Text */}
-    <p className="mt-6 text-lg font-medium tracking-wide text-white z-10">
-      Calling<span className="animate-pulse">…</span>
-    </p>
+    <div className="relative z-10 text-center">
+      <p className="text-2xl font-bold tracking-wide text-slate-50">
+        Calling<span className="animate-pulse">…</span>
+      </p>
 
-    <p className="mt-1 text-xs text-white/60 z-10">
-      Waiting for them to answer
-    </p>
+      <p className="mt-2 text-sm text-slate-400">
+        Waiting for them to answer
+      </p>
+    </div>
   </div>
 )}
 
@@ -541,25 +549,22 @@ const [remoteMuted, setRemoteMuted] = useState(false);
 
   {/* ON OTHER CALL STATE */}
   {friendState === "onOtherCall" && (
-  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-gradient-to-b from-zinc-950 via-black to-zinc-900 backdrop-blur-sm">
+  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-gradient-to-b from-slate-950 via-slate-900 to-black backdrop-blur-lg animate-fade-in">
 
     {/* Avatar */}
     <div className="relative">
       {/* busy ring */}
-      <div className="absolute inset-0 rounded-full border border-amber-500/40 animate-pulse"></div>
+      <div className="absolute inset-0 rounded-full border-2 border-orange-400/50 animate-pulse-slow scale-110"></div>
 
-      <img
-        src={`https://api.dicebear.com/9.x/initials/svg?seed=${friendId}&backgroundColor=111827`}
-        className="relative w-20 h-20 rounded-full border border-white/10 shadow-lg"
-      />
+      <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 border border-white/20 shadow-2xl shadow-orange-500/50 flex items-center justify-center text-white text-2xl font-bold" />
     </div>
 
     {/* Status */}
-    <p className="mt-4 text-sm font-medium text-white">
+    <p className="mt-6 text-base font-semibold text-slate-100">
       On another call
     </p>
 
-    <p className="mt-1 text-xs text-white/50 text-center max-w-[220px]">
+    <p className="mt-2 text-xs text-slate-400 text-center max-w-[220px] leading-relaxed">
       They’re currently busy.  
       Please try again in a moment.
     </p>
@@ -575,18 +580,22 @@ const [remoteMuted, setRemoteMuted] = useState(false);
         {/* <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/30" /> */}
 
         {/* Local Video (Floating) */}
-        <div className="absolute bottom-5 left-5 w-[22%] min-w-[160px] aspect-video rounded-xl overflow-hidden border border-white/20 shadow-xl bg-black">
+        <div className="absolute bottom-8 left-8 w-[22%] min-w-[180px] aspect-video rounded-2xl overflow-hidden backdrop-blur-xl bg-slate-900/80 border border-slate-700/50 shadow-2xl shadow-black/50 animate-slide-up">
           <div className="relative w-full h-full">
             {callingState.callState === "calling" ? (
               /* ===== CALLING ===== */
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70">
-                <img src={`https://api.dicebear.com/9.x/identicon/svg?seed=${Math.random()}`} className="w-20 h-20 rounded-full" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 to-slate-950">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center text-white text-3xl font-bold shadow-lg" />
                
               </div>
             ) : callingState.callState === "offline" ? (
               /* ===== OFFLINE ===== */
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-900">
-                <img src="/avatar-offline.png" className="w-20 h-20 rounded-full opacity-80" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900">
+                <div className="w-16 h-16 rounded-full bg-slate-700 flex items-center justify-center">
+                  <svg className="w-8 h-8 text-slate-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                  </svg>
+                </div>
                 <p className="mt-2 text-xs text-red-400">Offline</p>
               </div>
             ) : (
@@ -603,7 +612,7 @@ const [remoteMuted, setRemoteMuted] = useState(false);
                 
                 {/* Avatar shown when camera is off */}
                 {cameraOff && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-zinc-900">
+                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
                     <img
                       src={`https://api.dicebear.com/9.x/identicon/svg?seed=${Math.random()}`}
                       className="w-16 h-16 rounded-full"
@@ -616,7 +625,7 @@ const [remoteMuted, setRemoteMuted] = useState(false);
 
             {/* ===== MIC OFF OVERLAY ===== */}
             {isMuted && (
-              <div className="absolute top-2 right-2 bg-black/70 p-1.5 rounded-full">
+              <div className="absolute top-2 right-2 backdrop-blur-lg bg-red-500/20 border border-red-400/50 p-1.5 rounded-full">
                 <MicOff className="w-4 h-4 text-red-400" />
               </div>
             )}
@@ -626,33 +635,37 @@ const [remoteMuted, setRemoteMuted] = useState(false);
 
 
       {/* Controls */}
-      <div className="h-24 bg-neutral-800/95 backdrop-blur-md flex items-center justify-center gap-10 border-t border-white/10">
+      <div className="h-32 backdrop-blur-2xl bg-slate-800/40 border-t border-slate-700/50 flex items-center justify-center gap-6 shadow-2xl shadow-black/50 flex-wrap px-4">
         
         {/* Mute */}
        <button 
   onClick={handleMicToggle}
-  className={`w-12 h-12 rounded-full flex items-center justify-center text-white transition ${
-    isMuted ? 'bg-red-600 hover:bg-red-700' : 'bg-neutral-700 hover:bg-neutral-600'
+  className={`w-16 h-16 rounded-full flex items-center justify-center text-white transition-all duration-300 shadow-lg hover:scale-110 active:scale-95 ${
+    isMuted 
+      ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 shadow-red-500/50 border border-red-400/50' 
+      : 'backdrop-blur-lg bg-white/10 hover:bg-white/20 border border-white/20 shadow-black/30'
   }`}
 >
-  {isMuted ? <MicOff /> : <Mic />}
+  {isMuted ? <MicOff size={28} /> : <Mic size={28} />}
 </button>
 
 
         {/* Camera */}
         <button 
           onClick={handleCameraToggle}
-          className={`w-12 h-12 rounded-full flex items-center justify-center text-white transition ${
-            cameraOff ? 'bg-red-600 hover:bg-red-700' : 'bg-neutral-700 hover:bg-neutral-600'
+          className={`w-16 h-16 rounded-full flex items-center justify-center text-white transition-all duration-300 shadow-lg hover:scale-110 active:scale-95 ${
+            cameraOff 
+              ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 shadow-red-500/50 border border-red-400/50' 
+              : 'backdrop-blur-lg bg-white/10 hover:bg-white/20 border border-white/20 shadow-black/30'
           }`}
         >
-          <Camera />
+          <Camera size={28} />
         </button>
 
         {/* End Call */}
         <button
           onClick={handleEndCallClick}
-          className="px-6 py-3 rounded-full bg-red-600 hover:bg-red-700 text-white font-medium shadow-lg transition"
+          className="px-10 py-3 rounded-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white font-semibold text-base shadow-lg shadow-red-500/30 transition-all duration-300 hover:scale-105 active:scale-95"
         >
           End Call
         </button>

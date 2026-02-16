@@ -187,75 +187,77 @@ const ProfileView = () => {
   }, [user?.id])
 
   return (
-    <div className="h-full w-full bg-[#313338] text-gray-200 p-6">
-      <div className="max-w-2xl mx-auto">
+    <div className="h-full w-full bg-gradient-to-br from-slate-900 to-slate-950 text-slate-50 p-6 overflow-auto">
+      <div className="max-w-2xl mx-auto animate-fade-in">
         {/* User Header */}
-        <div className="flex items-center gap-5">
-          <div className="h-20 w-20 rounded-full bg-blue-600 flex items-center justify-center text-xl font-semibold overflow-hidden">
+        <div className="flex items-center gap-6 mb-8 backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl">
+          <div className="h-24 w-24 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-2xl font-bold text-white overflow-hidden flex-shrink-0 shadow-xl shadow-cyan-500/30">
             {profilePic ? (
               <img src={profilePic} alt="profile" className="h-full w-full object-cover" />
             ) : (
               (username ? username.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'U')
             )}
           </div>
-          <div>
-            {/* <div className="text-2xl font-semibold">{username || 'Your Name'}</div> */}
-            <div className="flex items-center gap-2">
-          <input
-            type="text"
-            value={newUsername}
-            disabled={!isEditing}   // initially disabled
-            onChange={(e) => setNewUsername(e.target.value)}
-            className={`border px-2 py-1 text-2xl font-semibold rounded ${
-              isEditing ? "border-blue-600" : "border-transparent bg-transparent"
-            }`}
-          />
-          {isEditing ? (
-            <>
-              <button
-                onClick={handleSaveusername}
-                className="bg-blue-600 text-white px-3 py-1 rounded text-sm"
-              >
-                Save
-              </button>
-              <button
-                onClick={() => { setIsEditing(false); setNewUsername(username); }}
-                className="text-gray-500 px-2 py-1 rounded text-sm"
-              >
-                Cancel
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={() => setIsEditing(true)}
-              className="text-blue-600 text-sm underline ml-2"
-            >
-              Update
-            </button>
-          )}
-        </div>
-            <div className="text-sm text-gray-400">{email || 'you@example.com'}</div>
+          <div className="flex-1">
+            {/* Username Edit */}
+            <div className="flex items-center gap-3 mb-2">
+              <input
+                type="text"
+                value={newUsername}
+                disabled={!isEditing}
+                onChange={(e) => setNewUsername(e.target.value)}
+                className={`text-2xl font-bold tracking-tight px-3 py-1 rounded-lg transition-all duration-300 ${
+                  isEditing 
+                    ? "bg-white/10 border border-cyan-400/50 text-slate-100" 
+                    : "bg-transparent border border-transparent text-slate-50"
+                }`}
+              />
+              {isEditing ? (
+                <>
+                  <button
+                    onClick={handleSaveusername}
+                    className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white text-sm font-semibold rounded-lg shadow-lg transition-all duration-300"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => { setIsEditing(false); setNewUsername(username); }}
+                    className="px-4 py-2 backdrop-blur-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-sm font-semibold rounded-lg transition-all duration-300"
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="px-4 py-2 backdrop-blur-lg bg-white/5 hover:bg-white/10 border border-white/10 text-cyan-400 hover:text-cyan-300 text-sm font-semibold rounded-lg transition-all duration-300"
+                >
+                  Edit
+                </button>
+              )}
+            </div>
+            <div className="text-sm text-slate-400">{email || 'you@example.com'}</div>
           </div>
         </div>
 
         {/* Info Cards */}
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Friend Code */}
-          <div className="bg-[#1e1f22] border border-gray-700 rounded-xl p-4">
-            <div className="text-sm text-gray-400">Friend Code</div>
-            <div className="mt-1 text-lg font-semibold tracking-widest">{friendCode || 'XXXX-XXXX'}</div>
-            <div className="mt-2 text-xs text-gray-400">Share this code so others can add you.</div>
+          <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl hover:bg-white/10 transition-all duration-300 animate-slide-up">
+            <div className="text-sm text-slate-400 font-medium">Friend Code</div>
+            <div className="mt-3 text-2xl font-bold tracking-widest text-cyan-400">{friendCode || 'XXXX-XXXX'}</div>
+            <div className="mt-3 text-xs text-slate-400">Share this code so others can add you.</div>
           </div>
 
           {/* Profile Picture Upload */}
-          <div className="bg-[#1e1f22] border border-gray-700 rounded-xl p-6 flex flex-col items-center justify-center">
-            <h1 className='mb-2'>Update Profile Pic</h1>
+          <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center shadow-xl hover:bg-white/10 transition-all duration-300 animate-slide-up">
+            <h3 className='mb-4 font-semibold text-slate-100'>Update Profile Pic</h3>
             <div className="relative">
-              <div className="h-28 w-28 rounded-full bg-[#2b2d31] flex items-center justify-center overflow-hidden">
+              <div className="h-32 w-32 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center overflow-hidden shadow-lg border-2 border-white/10">
                 {preview ? (
                   <img src={preview} alt="preview" className="h-full w-full object-cover" />
                 ) : (
-                  <span className="text-sm text-gray-500">No Image</span>
+                  <span className="text-sm text-slate-500">No Image</span>
                 )}
               </div>
               {/* File Input */}
@@ -270,9 +272,9 @@ const ProfileView = () => {
               {/* Overlay Button */}
               <label
                 htmlFor="profilePicInput"
-                className="absolute bottom-0 right-0 bg-blue-600 p-2 rounded-full cursor-pointer hover:bg-blue-700"
+                className="absolute bottom-0 right-0 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 p-3 rounded-full cursor-pointer shadow-lg transition-all duration-300 hover:scale-110"
               >
-                ✎
+                ✏️
               </label>
             </div>
 
@@ -281,27 +283,27 @@ const ProfileView = () => {
                 <button
                   onClick={handleSave}
                   disabled={uploading}
-                  className="px-4 py-1 bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50"
+                  className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white font-semibold rounded-lg shadow-lg transition-all duration-300 disabled:opacity-50"
                 >
                   {uploading ? "Saving..." : "Save"}
                 </button>
                 <button
                   onClick={handleCancel}
-                  className="px-4 py-1 bg-red-600 rounded-lg hover:bg-red-700"
+                  className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white font-semibold rounded-lg shadow-lg transition-all duration-300"
                 >
                   Cancel
                 </button>
               </div>
             )}
             {
-             profilePic && (
+              profilePic && (
               <button
-              onClick={handleRemove}
-              className="px-4 py-1 bg-red-600 rounded-lg hover:bg-red-700 mt-5"
-            >
-              {removing ? "Removing..." : "Remove"}
-            </button>
-             )
+                onClick={handleRemove}
+                className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white font-semibold rounded-lg shadow-lg transition-all duration-300 mt-5"
+              >
+                {removing ? "Removing..." : "Remove"}
+              </button>
+              )
             }
             
           </div>
@@ -309,8 +311,12 @@ const ProfileView = () => {
 
         {/* Pending Friend Requests */}
         <div className="mt-10">
-          <h2 className="text-lg font-semibold mb-4">Pending Friend Requests</h2>
-          {failmsg && <div className="text-red-400 text-sm mb-3">{failmsg}</div>}
+          <h2 className="text-2xl font-bold text-slate-100 mb-6">Pending Requests</h2>
+          {failmsg && (
+            <div className="mb-4 p-4 backdrop-blur-lg bg-red-500/20 border border-red-400/30 rounded-xl">
+              <p className="text-red-300 text-sm font-medium">{failmsg}</p>
+            </div>
+          )}
           <div className="space-y-3">
             {pendingRequests.length > 0 ? (
               pendingRequests.map(req => (
@@ -322,7 +328,7 @@ const ProfileView = () => {
                 />
               ))
             ) : (
-              <div className="text-gray-400 text-sm">No pending requests</div>
+              <div className="text-slate-400 text-sm text-center py-8">No pending requests</div>
             )}
           </div>
         </div>

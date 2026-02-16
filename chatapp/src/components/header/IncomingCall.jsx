@@ -34,51 +34,35 @@ const IncomingCall = () => {
   }
   return (
     <div
-      className="
-        w-72
-        rounded-xl
-        bg-[#1e1f22]
-        border border-gray-700
-        shadow-2xl
-        p-4
-        text-gray-200
-        flex flex-col gap-3
-      "
+      className="w-80 rounded-2xl backdrop-blur-2xl bg-slate-800/40 border border-slate-700/50 shadow-2xl shadow-black/50 p-6 text-slate-50 flex flex-col gap-4 animate-slide-up"
     >
       {/* Title */}
-      <div className="text-sm font-semibold tracking-wide">
-        Incoming Call
+      <div className="text-sm font-semibold tracking-wide text-cyan-400">
+        📞 Incoming Call
       </div>
 
       {/* Caller Info */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
+        <div className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-lg font-bold flex-shrink-0 shadow-lg">
+          {callOffer.callerName ? callOffer.callerName.charAt(0).toUpperCase() : '?'}
+        </div>
         <div className="flex flex-col">
-          <span className="font-medium">{callOffer.callerName}</span>
-          <span className="text-xs text-gray-400">Video calling…</span>
+          <span className="font-semibold text-slate-100">{callOffer.callerName}</span>
+          <span className="text-xs text-slate-400">📹 Video calling...</span>
         </div>
       </div>
 
       {/* Actions */}
-      <div className="flex justify-end gap-2 pt-2">
+      <div className="flex justify-end gap-3 pt-2">
         <button
-          className="
-            px-3 py-1.5 text-sm
-            rounded-md
-            bg-gray-600 hover:bg-gray-500
-            transition
-          "
+          className="px-5 py-2 text-sm font-semibold rounded-lg bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white shadow-lg transition-all duration-300 hover:scale-105 active:scale-95"
           onClick={handleReject}
         >
-          Reject
+          Decline
         </button>
         <button
           onClick={handleAccept}
-          className="
-            px-3 py-1.5 text-sm
-            rounded-md
-            bg-green-600 hover:bg-green-500
-            transition
-          "
+          className="px-5 py-2 text-sm font-semibold rounded-lg bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white shadow-lg transition-all duration-300 hover:scale-105 active:scale-95"
         >
           Accept
         </button>

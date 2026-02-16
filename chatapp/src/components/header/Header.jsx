@@ -30,26 +30,27 @@ const user = useSelector((state) => state.user.userinfo || {});
 
   return (
     <header>
-      <div className="w-full rounded-2xl bg-[#1e1f22] text-gray-200 p-4 flex items-center justify-between">
-        <div className="text-xl font-semibold">Chat On
-          <Cable className="inline-block ml-2"/>
+      <div className="w-full rounded-2xl backdrop-blur-xl bg-slate-800/40 border border-slate-700/50 text-slate-50 p-4 flex items-center justify-between shadow-xl shadow-black/40 transition-all duration-300 animate-fade-in">
+        <div className="text-2xl font-bold tracking-tight bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent flex items-center gap-2">
+          ChatApp
+          <Cable className="inline-block text-cyan-400" size={24}/>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <Link
             to="/profile"
-            className="px-3 py-1.5 rounded-lg bg-[#2b2d31] border border-gray-700 text-sm hover:bg-[#34363b]"
+            className="px-4 py-2 rounded-xl backdrop-blur-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-sm font-medium text-slate-300 transition-all duration-300 hover:scale-105"
           >
             Profile
           </Link>
           <Link
             to="/add-friend"
-            className="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-500"
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white text-sm font-semibold shadow-lg shadow-cyan-500/30 transition-all duration-300 hover:scale-105 active:scale-95"
           >
             Add Friend
           </Link>
           <button
             onClick={handleLogout}
-            className="px-3 py-1.5 rounded-lg bg-red-600 text-white text-sm hover:bg-red-500"
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white text-sm font-semibold shadow-lg shadow-red-500/30 transition-all duration-300 hover:scale-105 active:scale-95"
           >
             Logout
           </button>

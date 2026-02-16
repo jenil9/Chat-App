@@ -1,11 +1,11 @@
 export default function AvatarOverlay({ name, subtitle }) {
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 z-10 text-white">
-      <div className="w-24 h-24 rounded-full bg-neutral-700 flex items-center justify-center text-3xl">
-        {name[0]}
+    <div className="absolute inset-0 flex flex-col items-center justify-center backdrop-blur-lg bg-black/40 z-10 text-slate-50 animate-fade-in">
+      <div className="w-28 h-28 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-4xl font-bold text-white shadow-2xl shadow-cyan-500/50">
+        {name && name[0] ? name[0].toUpperCase() : '?'}
       </div>
-      <p className="mt-4 text-lg">{name}</p>
-      {subtitle && <p className="text-sm text-white/70">{subtitle}</p>}
+      <p className="mt-6 text-xl font-semibold">{name}</p>
+      {subtitle && <p className="text-sm text-slate-400 mt-1">{subtitle}</p>}
     </div>
   )
 }
