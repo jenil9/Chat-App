@@ -9,29 +9,28 @@ const IncomingCall = () => {
   const dispatch=useDispatch();
   const socket=getSocket();
   const user=useSelector((state)=>state.user.userinfo)
-  const navigate = useNavigate(); // FIXED: Move hook to top level
+  const navigate = useNavigate(); 
   
-  const handleAccept=()=>{
-    dispatch(setCallingState({"callState":"onCall","didICall":false}));
+  const handleAccept = () => {
+    dispatch(setCallingState({ callState: "onCall", didICall: false }));
     dispatch(setCallOffer({}));
-    // socket.emit("call-accept",{"callerId":callOffer.callerId,"receiverId":user.id})
-    // console.log("call accept")
-    navigate('/friends/'+callOffer.callerId) // FIXED: Use navigate, not useNavigate()
+    navigate(`/friends/${callOffer.callerId}`);
 
     setTimeout(() => {
-    socket.emit("call-accept", {
+      socket.emit("call-accept", {
+        callerId: callOffer.callerId,
+        receiverId: user.id
+      });
+    }, 50);
+  };
+  const handleReject = () => {
+    dispatch(setCallOffer({}));
+    dispatch(setCallingState({ callState: "idle", didICall: false }));
+    socket.emit("call-reject", {
       callerId: callOffer.callerId,
       receiverId: user.id
     });
-    console.log("call accept emitted");
-  }, 50); // 50ms is usually enough
-    
-  }
-  const handleReject=()=>{
-   dispatch(setCallOffer({}))
-   dispatch(setCallingState({"callState":"idle","didICall":false}));
-   socket.emit("call-reject",{"callerId":callOffer.callerId,"receiverId":user.id})
-  }
+  };
   return (
     <div
       className="w-80 rounded-2xl backdrop-blur-2xl bg-slate-800/40 border border-slate-700/50 shadow-2xl shadow-black/50 p-6 text-slate-50 flex flex-col gap-4 animate-slide-up"

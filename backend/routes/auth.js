@@ -4,7 +4,10 @@ const jwt = require('jsonwebtoken');
 const {User}=require('../models/index');
 const router=express.Router();
 
-const JWT_SECRET = process.env.JWT_SECRET;
+require('dotenv').config();
+
+const JWT_SECRET = process.env.APP_JWT_SECRET;
+const JWT_EXPIRES_IN = process.env.APP_JWT_EXPIRES_IN || '3h';
 
 router.post('/signup',async (req,res)=>{
   try {
@@ -49,7 +52,7 @@ if (!isPasswordValid) {
 
 
   
-  const token = jwt.sign({ id: user._id,email:user.email}, JWT_SECRET);
+  const token = jwt.sign({ id: user._id,email:user.email}, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 
   // Set token in HttpOnly cookie
   res.cookie("token", token, {

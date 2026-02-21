@@ -12,12 +12,10 @@ const cloudinaryupload=require('../utility/cloudinary');
 router.post('/profilepic/:id',upload.single('image'),async (req,res)=>{
     const userid=req.params.id;
     try{
-        if(!req.file)
-        {
+        if (!req.file) {
             return res.status(400).json({ message: "No file uploaded" });
         }
-        // console.log(req.file);
-        const result = await  cloudinaryupload(req.file.path,userid);
+        const result = await cloudinaryupload(req.file.path, userid);
 
         // 2️⃣ Delete local file
         fs.unlink(req.file.path, (err) => {

@@ -8,7 +8,11 @@ let socket;
 
 export const initSocket = (userId) => {
   if (!socket) {
-    const socketUrl = import.meta.env.VITE_SOCKET_URL || "https://localhost:3000";
+    const socketUrl = import.meta.env.VITE_SOCKET_URL;
+    if (!socketUrl) {
+      console.error('VITE_SOCKET_URL is not defined in environment variables');
+      return null;
+    }
     socket = io(socketUrl, {
       auth: { userId }  // attach userId during handshake
     });
@@ -83,9 +87,8 @@ const setupSocketListeners = () => {
   }
 });
 
-socket.on("call-receive",(obj)=>{
-  console.log("RECEIVED CALL from", obj.callerId, "name:", obj.callerName);
-  store.dispatch(setCallingState({"callState":"ringing","didICall":false}));
+socket.on("call-receive", (obj) => {
+  store.dispatch(setCallingState({ callState: "ringing", didICall: false }));
   store.dispatch(setCallOffer(obj));
 })
 

@@ -1,20 +1,17 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
+import { Menu } from 'lucide-react'
 import { getSocket, checkOnlineStatus } from '../../../socket'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectUserOnlineStatus } from '../../store/messagesSlice'
-import { ChatWindow,IncomingCall,VideoWindow } from '../index.js'
+import { useSidebar } from '../../context/SidebarContext'
+import { ChatWindow, IncomingCall, VideoWindow } from '../index.js'
 import { setCallingState } from '../../store/userSlice.js'
-
-// Placeholder chat component
-
-
-// Placeholder video call component
-
 
 const ChatContainer = () => {
   const params = useParams()
   const location = useLocation()
+  const { onMenuClick } = useSidebar() || {}
   const friendFromState = location.state?.friend
   const friendId = params.friendId
 
@@ -58,28 +55,14 @@ const ChatContainer = () => {
      
   },[callingState])
 
-  // Check online status when friend changes
-
-//  useEffect(() => {
-//   if (friendId && socket?.connected) {
-//     selectUserOnlineStatus()
-//   }
-// }, [friendId, socket])
-
-
-
-const handleClickCall=() => {
-  if(isCalling)//duplicate button click on call
-  {
-    return;
-  }
-  dispatch(setCallingState({"callState":"calling","didICall":true}));
-  setIsCalling(true)
-  
-}
+  const handleClickCall = () => {
+    if (isCalling) return;
+    dispatch(setCallingState({ callState: "calling", didICall: true }));
+    setIsCalling(true);
+  };
 
   return (
-    <section className="h-full flex flex-col bg-gradient-to-br from-slate-900 to-slate-950 text-slate-50 overflow-hidden">
+    <section className="h-full min-h-0 flex flex-col bg-gradient-to-br from-slate-900 to-slate-950 text-slate-50 overflow-hidden">
       <div
         className={`
           fixed top-4 right-4 z-50
@@ -92,9 +75,19 @@ const handleClickCall=() => {
         <IncomingCall />
       </div>
 
-      {/* Header */}
-      <div className="px-4 py-4 backdrop-blur-lg bg-white/5 border-b border-slate-700/50 flex items-center justify-between flex-shrink-0 shadow-lg">
-        <div className="flex items-center gap-4">
+      {/* Header - sticky on mobile, always visible, does not scroll with messages */}
+      <div className="sticky top-0 z-10 px-4 py-4 backdrop-blur-lg bg-white/5 border-b border-slate-700/50 flex items-center justify-between flex-shrink-0 shadow-lg">
+        <div className="flex items-center gap-4 min-w-0 flex-1">
+          {/* Hamburger to open sidebar on mobile */}
+          {onMenuClick && (
+            <button
+              onClick={onMenuClick}
+              className="md:hidden flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl backdrop-blur-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-slate-300 hover:text-slate-100 transition-all duration-300"
+              aria-label="Open chat list"
+            >
+              <Menu size={22} strokeWidth={2} />
+            </button>
+          )}
           <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-xs font-bold text-white shadow-lg">
             {(friend.username || '?').slice(0, 2).toUpperCase()}
           </div>

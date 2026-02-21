@@ -6,15 +6,15 @@ import { useSelector,useDispatch } from 'react-redux'
 import { setCallingState } from '../../store/userSlice'
 import RTC from '../../sevices/RTC'
 import Lottie from "lottie-react";
-import callingAnim from "../../assets/calling.json"; // download from lottiefiles
+import callingAnim from "../../assets/calling.json";
 import offlineAnim from "../../assets/offline.json";
 
 const VideoWindow = ({ onEndCall }) => {
   const { friendId } = useParams()
-  const dispatch=useDispatch();
-  const socket = getSocket()
-  const userId=useSelector((state)=>state.user.userinfo.id)
-  let callingState=useSelector((state)=>{return state.user.callingState})
+  const dispatch = useDispatch();
+  const socket = getSocket();
+  const userId = useSelector((state) => state.user.userinfo.id);
+  const callingState = useSelector((state) => state.user.callingState);
   const callSentRef = useRef(false);
   const [friendState,setFriendState]=useState(null);
   const [isMuted, setIsMuted] = useState(false);
@@ -50,36 +50,22 @@ const [remoteMuted, setRemoteMuted] = useState(false);
     onEndCall();
   };
 
-  // ✅ Initialize RTC and get streams immediately
-  // useEffect(() => {
-  
-  // }, []);
+  useEffect(() => {
+    if (callingState.didICall === true) {
+      socket.emit("call-request", { callerId: userId, receiverId: friendId });
+    } else {
+      setFriendState("online");
+    }
 
-  useEffect(()=>{
-     if(callingState.didICall==true)
-     {
-       socket.emit("call-request",{"callerId":userId,"receiverId":friendId});
-       console.log("call request sent",userId, friendId)
-     }
-     else
-     {
-      setFriendState("online")
-     }
-
-     const handleCallRequestResponse = ({response})=>{
-       console.log("RECEIVED call-request-response", response);
-       if(response=="online"){
-        setFriendState("online")
-       }
-       else if(response=="offline")
-       {
+     const handleCallRequestResponse = ({ response }) => {
+       if (response === "online") {
+        setFriendState("online");
+       } else if (response === "offline") {
         setFriendState("offline");
+       } else if (response === "onOtherCall") {
+        setFriendState("onOtherCall");
        }
-       else if(response=="onOtherCall")
-       {
-        setFriendState("onOtherCall")
-       }
-     }
+     };
  const initRTC = async () => {
   if (pcRef.current) return;
 
@@ -110,87 +96,26 @@ const [remoteMuted, setRemoteMuted] = useState(false);
   );
 
   await pcRef.current.getStreams();
-  await pcRef.current.createConnection(); // 🔥 move here
+  await pcRef.current.createConnection();
 
   if (localVideoRef.current) {
     localVideoRef.current.srcObject = pcRef.current.localStream;
   }
 };
-// const initRTC = async () => {
-//   if (pcRef.current) return;
 
-//   pcRef.current = new RTC(
-//     socket,
-//     userId,
-//     friendId,
-//     (stream) => {
-//       if (!remoteVideoRef.current) return;
-
-//       remoteVideoRef.current.srcObject = stream;
-//       remoteVideoRef.current.play().catch(() => {});
-
-//       // Monitor ALL tracks continuously
-//       stream.getTracks().forEach(track => {
-//         // Initial state
-//         if (track.kind === 'video') {
-//           setRemoteCameraOff(!track.enabled && !track.muted);
-//         } else if (track.kind === 'audio') {
-//           setRemoteMuted(!track.enabled || track.muted);
-//         }
-
-//         // Listen for changes
-//         track.onmute = () => {
-//           console.log(`Remote ${track.kind} muted`);
-//           if (track.kind === 'video') setRemoteCameraOff(true);
-//           if (track.kind === 'audio') setRemoteMuted(true);
-//         };
-
-//         track.onunmute = () => {
-//           console.log(`Remote ${track.kind} unmuted`);
-//           if (track.kind === 'video') setRemoteCameraOff(false);
-//           if (track.kind === 'audio') setRemoteMuted(false);
-//         };
-
-//         track.onended = () => {
-//           console.log(`Remote ${track.kind} ended`);
-//           if (track.kind === 'video') setRemoteCameraOff(true);
-//           if (track.kind === 'audio') setRemoteMuted(true);
-//         };
-//       });
-//     }
-//   );
-
-//   await pcRef.current.getStreams();
-//   await pcRef.current.createConnection();
-
-//   if (localVideoRef.current) {
-//     localVideoRef.current.srcObject = pcRef.current.localStream;
-//   }
-// };
-
-
-    
-     const handleCallRejected = ({callerId,receiverId})=>{
-       if(receiverId!=friendId){return;}
-       dispatch(setCallingState({"callState":"idle","didICall":false}));
+     const handleCallRejected = ({ callerId, receiverId }) => {
+       if (receiverId !== friendId) return;
+       dispatch(setCallingState({ callState: "idle", didICall: false }));
        onEndCall();
      }
 
     const handleCallAccepted = async ({ callerId, receiverId }) => {
-      console.log("Call accepted by", receiverId);
-      
-      // if (!pcRef.current) {
-      //   console.error("RTC not initialized!");
-      //   return;
-      // }
-
       dispatch(setCallingState({ callState: "onCall", didICall: true }));
       setFriendState("onCall");
 
       // ✅ Create peer connection and offer
       try {
         await initRTC();
-        // await pcRef.current.createConnection();
         await pcRef.current.createOffer({
           callerId: userId,
           receiverId: friendId
@@ -201,22 +126,10 @@ const [remoteMuted, setRemoteMuted] = useState(false);
     };
 
     const handleNewOffer = async (offerPack) => {
-      console.log("Offer received from", offerPack.callerId);
-      
-      // if (!pcRef.current) {
-      //   console.error("RTC not initialized!");
-      //   return;
-      // }
-
       try {
-        // ✅ Create connection, set remote offer, then answer
         await initRTC();
-        // await pcRef.current.createConnection();
         await pcRef.current.setRemoteOffer(offerPack.offer);
         await pcRef.current.answerOffer();
-        console.log("Answer sent");
-        
-        // ✅ Update state to show we're on call
         dispatch(setCallingState({ callState: "onCall", didICall: false }));
         setFriendState("onCall");
       } catch (err) {
@@ -226,24 +139,21 @@ const [remoteMuted, setRemoteMuted] = useState(false);
 
     const handleIceCandidate = (iceCandidate) => {
       if (!pcRef.current) return;
-      // if (callingState.callState !== "onCall") return;
       pcRef.current.addNewIceCandidate(iceCandidate);
     };
 
     const handleAnswerResponse = async (offerObj) => {
-      console.log("Answer received");
       if (pcRef.current) {
         await pcRef.current.addAnswer(offerObj.offer);
-        console.log("Answer added");
       }
-    }
+    };
 
-    const handleEndCall = ({callerId,receiverId})=>{
+    const handleEndCall = ({ callerId, receiverId }) => {
       if (pcRef.current) {
         pcRef.current.close();
         pcRef.current = null;
       }
-      dispatch(setCallingState({"callState":"idle","didICall":false}));
+      dispatch(setCallingState({ callState: "idle", didICall: false }));
       onEndCall();
     }
 
@@ -255,121 +165,54 @@ const [remoteMuted, setRemoteMuted] = useState(false);
       setRemoteCameraOff(cameraOff);
     };
 
-    // Register socket listeners
-    socket.on("call-request-response", handleCallRequestResponse)
-    socket.on("call-rejected", handleCallRejected)
-    socket.on("call-accepted", handleCallAccepted)
-    socket.on("newOffer", handleNewOffer)
-    socket.on('receivedIceCandidateFromServer', handleIceCandidate)
-    socket.on('answerresponse', handleAnswerResponse)
-    socket.on('end-call', handleEndCall)
-    socket.on('mic-toggle', handleRemoteMicToggle)
-    socket.on('camera-toggle', handleRemoteCameraToggle)
-  
-    // Cleanup
-    return ()=>{
-      socket.off("call-request-response", handleCallRequestResponse)
-      socket.off("call-rejected", handleCallRejected)
-      socket.off("call-accepted", handleCallAccepted)
-      socket.off("newOffer", handleNewOffer)
-      socket.off('receivedIceCandidateFromServer', handleIceCandidate)
-      socket.off('answerresponse', handleAnswerResponse)
-      socket.off('end-call', handleEndCall)
-      socket.off('mic-toggle', handleRemoteMicToggle)
-      socket.off('camera-toggle', handleRemoteCameraToggle)
-    }
-  },[])
-  
-  useEffect(()=>{
-    console.log("EFFECT RUN", {
-      friendState,
-      didICall: callingState.didICall,
-      callSent: callSentRef.current
-    });
-    
-    if(friendState==null) return;
-    if(friendState=="offline"||friendState=="onOtherCall") return;
-    if(friendState=="onCall") return;
+    socket.on("call-request-response", handleCallRequestResponse);
+    socket.on("call-rejected", handleCallRejected);
+    socket.on("call-accepted", handleCallAccepted);
+    socket.on("newOffer", handleNewOffer);
+    socket.on("receivedIceCandidateFromServer", handleIceCandidate);
+    socket.on("answerresponse", handleAnswerResponse);
+    socket.on("end-call", handleEndCall);
+    socket.on("mic-toggle", handleRemoteMicToggle);
+    socket.on("camera-toggle", handleRemoteCameraToggle);
 
-    if(callingState.didICall === true && !callSentRef.current) {
-      socket.emit("call-send",{
-        callerId:userId,
-        receiverId:friendId
+    return () => {
+      socket.off("call-request-response", handleCallRequestResponse);
+      socket.off("call-rejected", handleCallRejected);
+      socket.off("call-accepted", handleCallAccepted);
+      socket.off("newOffer", handleNewOffer);
+      socket.off("receivedIceCandidateFromServer", handleIceCandidate);
+      socket.off("answerresponse", handleAnswerResponse);
+      socket.off("end-call", handleEndCall);
+      socket.off("mic-toggle", handleRemoteMicToggle);
+      socket.off("camera-toggle", handleRemoteCameraToggle);
+    };
+  }, []);
+  
+  useEffect(() => {
+    if (friendState === null) return;
+    if (friendState === "offline" || friendState === "onOtherCall") return;
+    if (friendState === "onCall") return;
+
+    if (callingState.didICall === true && !callSentRef.current) {
+      socket.emit("call-send", {
+        callerId: userId,
+        receiverId: friendId
       });
-      console.log("call send");
       callSentRef.current = true;
     }
-  }, [friendState, callingState.didICall])
+  }, [friendState, callingState.didICall]);
 
-  // ✅ Update remote video when stream is available
-  // useEffect(() => {
-  //   console.log("remote stream",pcRef.current?.remoteStream)
-  //   if (friendState !== "onCall") return;
-  //   if (!pcRef.current?.remoteStream) return;
-
-  //   const checkRemoteStream = setInterval(() => {
-  //     // if (pcRef.current?.remoteStream?.getTracks().length > 0) {
-  //     if (pcRef.current?.remoteStream){
-  //       if (remoteVideoRef.current) {
-  //         remoteVideoRef.current.srcObject = pcRef.current.remoteStream;
-  //         console.log("Remote stream attached");
-  //       }
-  //       clearInterval(checkRemoteStream);
-  //     }
-  //   }, 500);
-
-  //   return () => clearInterval(checkRemoteStream);
-  // // }, [friendState]);
-  // });
-
-//   useEffect(() => {
-//     console.log("remote stream",pcRef.current?.remoteStream)
-//   if (friendState !== "onCall") return;
-//   if (!pcRef.current?.remoteStream) return;
-
-//   if (remoteVideoRef.current) {
-//     remoteVideoRef.current.srcObject = pcRef.current.remoteStream;
-//     console.log("Remote stream attached");
-//   }
-// }, [friendState]);  
-// useEffect(() => {
-//   if (!remoteStream || !remoteVideoRef.current) return;
-
-//   const video = remoteVideoRef.current;
-
-//   if (video.srcObject !== remoteStream) {
-//     video.srcObject = remoteStream;
-
-//     video.onloadedmetadata = () => {
-//       video.play().catch(err => {
-//         console.warn("Autoplay blocked:", err);
-//       });
-//     };
-//   }
-// }, [remoteStream]);
-
-  // Handle mute/unmute
-  // const handleMute = () => {
-  //   if (pcRef.current?.localStream) {
-  //     const audioTracks = pcRef.current.localStream.getAudioTracks();
-  //     audioTracks.forEach(track => {
-  //       track.enabled = !isMuted;
-  //     });
-  //     setIsMuted(!isMuted);
-  //   }
-  // };
   const handleMicToggle = () => {
   if (!pcRef.current?.localStream) return;
 
   const audioTracks = pcRef.current.localStream.getAudioTracks();
 
-  audioTracks.forEach(track => {
-    track.enabled = isMuted; // toggle
+  audioTracks.forEach((track) => {
+    track.enabled = isMuted;
   });
 
   setIsMuted(!isMuted);
-  
-  // Notify remote user of mic state change
+
   socket.emit("mic-toggle", {
     callerId: userId,
     receiverId: friendId,
@@ -377,84 +220,26 @@ const [remoteMuted, setRemoteMuted] = useState(false);
   });
 };
 
-
-  // Handle camera toggle
-  // const handleCameraToggle = () => {
-  //   if (pcRef.current?.localStream) {
-  //     const videoTracks = pcRef.current.localStream.getVideoTracks();
-  //     videoTracks.forEach(track => {
-  //       track.enabled = cameraOff;
-  //     });
-  //     setCameraOff(!cameraOff);
-  //   }
-  // };
   const handleCameraToggle = () => {
   if (!pcRef.current?.localStream) return;
 
   const videoTracks = pcRef.current.localStream.getVideoTracks();
 
-  // Simply toggle the track enabled state
-  videoTracks.forEach(track => {
-    track.enabled = cameraOff;  // if cameraOff is true, enable; if false, disable
+  videoTracks.forEach((track) => {
+    track.enabled = cameraOff;
   });
 
-  // Toggle the state
   setCameraOff(!cameraOff);
-  
-  // Notify remote user of camera state change
+
   socket.emit("camera-toggle", {
     callerId: userId,
     receiverId: friendId,
     cameraOff: !cameraOff
   });
 };
-// const handleCameraToggle = async () => {
-//   if (!pcRef.current?.localStream || !localVideoRef.current) return;
-
-//   const videoTracks = pcRef.current.localStream.getVideoTracks();
-
-//   if (cameraOff) {
-//     // 🔴 TURN CAMERA OFF
-//     videoTracks.forEach(track => (track.enabled = false));
-//     localVideoRef.current.srcObject = null;
-//   } else {
-//     // 🟢 TURN CAMERA ON
-//     videoTracks.forEach(track => (track.enabled = true));
-
-//     // 🔥 REATTACH + FORCE PLAY
-//     localVideoRef.current.srcObject = pcRef.current.localStream;
-//     await localVideoRef.current.play().catch(() => {});
-//   }
-
-//   setCameraOff(!cameraOff);
-// };
-
-// Add this after all existing useEffects, before the handleMicToggle function
-// useEffect(() => {
-//   if (friendState !== "onCall") return;
-//   if (!pcRef.current?.remoteStream) return;
-
-//   const checkInterval = setInterval(() => {
-//     const stream = pcRef.current.remoteStream;
-//     if (!stream) return;
-
-//     const videoTrack = stream.getVideoTracks()[0];
-//     const audioTrack = stream.getAudioTracks()[0];
-
-//     if (videoTrack) {
-//       setRemoteCameraOff(!videoTrack.enabled || videoTrack.muted);
-//     }
-//     if (audioTrack) {
-//       setRemoteMuted(!audioTrack.enabled || audioTrack.muted);
-//     }
-//   }, 500);
-
-//   return () => clearInterval(checkInterval);
-// }, [friendState]);
-
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+    <div className="flex flex-1 flex-col min-h-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
       
       {/* Video Stage */}
       <div className="relative flex-1 overflow-hidden">
@@ -575,9 +360,6 @@ const [remoteMuted, setRemoteMuted] = useState(false);
 
         
 
-
-        {/* Gradient overlay */}
-        {/* <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/30" /> */}
 
         {/* Local Video (Floating) */}
         <div className="absolute bottom-8 left-8 w-[22%] min-w-[180px] aspect-video rounded-2xl overflow-hidden backdrop-blur-xl bg-slate-900/80 border border-slate-700/50 shadow-2xl shadow-black/50 animate-slide-up">

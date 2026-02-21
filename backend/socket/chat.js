@@ -64,8 +64,6 @@ function buildConversationId(userA, userB) {
       );
     }
   } catch (err) {
-    // swallow to avoid disconnecting user on delivery failure
-    console.log(err)
   }
 
   socket.on('sendMessage', async ({ senderId, receiverId, text }) => {
@@ -131,25 +129,6 @@ const messages = await Message.find({ conversationId })
   .lean();
 
         
-      
-      // Also check for any pending messages for this user that might not be in the conversation yet
-      // const pendingMessages = await Message.find({ 
-      //   receiver: userId, 
-      //   status: 'sent',
-      //   conversationId: { $ne: conversationId }
-      // }).lean();
-      
-      // // Update pending messages to delivered status
-      // if (pendingMessages.length > 0) {
-      //   await Message.updateMany(
-      //     { _id: { $in: pendingMessages.map(msg => msg._id) } },
-      //     { $set: { status: 'delivered', deliveredAt: new Date() } }
-      //   );
-      // }
-      
-      // // Combine conversation messages and pending messages
-      // const allMessages = [...messages, ...pendingMessages];
-      
       const formattedMessages = messages.map((doc) => ({
         _id: doc._id,
         senderId: doc.sender,
@@ -258,8 +237,7 @@ const messages = await Message.find({ conversationId })
        const callerSocketIds = onlineUsers.get(String(callerId));
        if (callerSocketIds) {
          callerSocketIds.forEach(socketId => {
-           io.to(socketId).emit("call-request-response",{"response":"online"});
-           console.log("sever say online");
+           io.to(socketId).emit("call-request-response", { response: "online" });
          });
        }
     }
@@ -268,8 +246,7 @@ const messages = await Message.find({ conversationId })
       const callerSocketIds = onlineUsers.get(String(callerId));
       if (callerSocketIds) {
         callerSocketIds.forEach(socketId => {
-          io.to(socketId).emit("call-request-response",{"response":"onOtherCall"});
-          console.log("sever say on other cal");
+          io.to(socketId).emit("call-request-response", { response: "onOtherCall" });
         });
       }
     }
@@ -278,8 +255,7 @@ const messages = await Message.find({ conversationId })
       const callerSocketIds = onlineUsers.get(String(callerId));
       if (callerSocketIds) {
         callerSocketIds.forEach(socketId => {
-          io.to(socketId).emit("call-request-response",{"response":"offline"});
-          console.log("sever say offline");
+          io.to(socketId).emit("call-request-response", { response: "offline" });
         });
       }
     }
@@ -357,7 +333,6 @@ const messages = await Message.find({ conversationId })
     if(usersState.has(String(receiverId))) {
       usersState.get(String(receiverId)).status="onCall";
     }
-    console.log("call accept")
     const callerSocketIds = onlineUsers.get(String(callerId));
     if (callerSocketIds) {
       callerSocketIds.forEach(socketId => {

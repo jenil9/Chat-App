@@ -6,7 +6,7 @@ import noFriendsAnimation from '../../animations/No Data Available.json'
 import Lottie from 'lottie-react'
 
 // Friend item component to avoid hooks in map
-const FriendItem = ({ friend, location }) => {
+const FriendItem = ({ friend, location, onLinkClick }) => {
   const unreadCount = useSelector((state) => selectUnreadCountForFriend(state, friend.id))
   
   return (
@@ -14,6 +14,7 @@ const FriendItem = ({ friend, location }) => {
       <Link
         to={{ pathname: `/friends/${friend.id}` }}
         state={{ friend: friend, from: location.pathname }}
+        onClick={onLinkClick}
         className="flex items-center gap-3 px-4 py-3 mx-2 my-1 rounded-xl backdrop-blur-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all duration-300 hover:translate-x-1 animate-slide-in group"
       >
         <div className="h-10 w-10 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-xs font-semibold overflow-hidden flex-shrink-0 shadow-lg shadow-cyan-500/30 group-hover:shadow-cyan-500/50 transition-shadow duration-300">
@@ -37,7 +38,7 @@ const FriendItem = ({ friend, location }) => {
   )
 }
 
-const Sidebar = () => {
+const Sidebar = ({ onLinkClick }) => {
   const location = useLocation()
   const [friends, setFriends] = useState([])
   const [query, setQuery] = useState('')
@@ -45,7 +46,11 @@ const Sidebar = () => {
   const [error, setError] = useState('')
   const user = useSelector((state)=>state.user.userinfo)
 
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE || 'https://localhost:3000'
+  const API_BASE = import.meta.env.VITE_API_BASE_URL;
+  
+  if (!API_BASE) {
+    console.error('VITE_API_BASE_URL is not defined in environment variables');
+  }
 
   useEffect(() => {
     if (!user?.id) return
@@ -136,7 +141,7 @@ const Sidebar = () => {
         ) : (
           <ul className="py-2 space-y-1">
             {filtered.map((f) => (
-              <FriendItem key={f.id} friend={f} location={location} />
+              <FriendItem key={f.id} friend={f} location={location} onLinkClick={onLinkClick} />
             ))}
           </ul>
         )}
