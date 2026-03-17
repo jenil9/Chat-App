@@ -12,9 +12,9 @@ const storage = multer.diskStorage({
         cb(null, uploadPath);
     },
     filename: function (req, file, cb) {
-        // Use user ID + original file extension
+        // Use timestamp + original file extension
         const ext = path.extname(file.originalname); // .jpg, .png, etc
-        cb(null, req.params.id + ext); 
+        cb(null, Date.now() + ext); 
     }
 });
 

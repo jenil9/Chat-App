@@ -1,11 +1,16 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const { User } = require('../models/index');
+const { authenticateToken } = require('../middleware/auth');
 const router = express.Router();
+
+// Apply authentication to all friend routes
+router.use(authenticateToken);
 
 router.post("/add", async (req, res) => {
   try {
-    const { myId, code } = req.body;
+    const { code } = req.body;
+    const myId = req.user.id;
 
     const me = await User.findById(myId);
     const friend = await User.findOne({ friendCode: code });
@@ -28,9 +33,9 @@ router.post("/add", async (req, res) => {
   }
 });
 
-router.get('/pendingRequest/:userId', async (req, res) => {
+router.get('/pendingRequest', async (req, res) => {
   try {
-    const { userId } = req.params;
+    const userId = req.user.id;
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ message: "Invalid userId" });
     }
@@ -57,7 +62,8 @@ router.get('/pendingRequest/:userId', async (req, res) => {
 
 router.post('/accept', async (req, res) => {
   try {
-    const { meid, requesterid } = req.body;
+    const { requesterid } = req.body;
+    const meid = req.user.id;
 
     const me = await User.findById(meid);
     const requester = await User.findById(requesterid);
@@ -86,7 +92,8 @@ router.post('/accept', async (req, res) => {
 
 router.post('/reject', async (req, res) => {
   try {
-    const { meid, requesterid } = req.body;
+    const { requesterid } = req.body;
+    const meid = req.user.id;
 
     const me = await User.findById(meid);
     if (!me) return res.status(404).json({ message: "User not found" });
@@ -101,8 +108,8 @@ router.post('/reject', async (req, res) => {
   }
 });
 
-router.get('/list/:id',async (req,res)=>{
-   const userid=req.params.id;
+router.get('/list',async (req,res)=>{
+   const userid= req.user.id;
    try{
     const me = await User.findById(userid)
     .select("friends")

@@ -20,7 +20,7 @@ const AddFriend = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ myId: user.id, code }),
+          body: JSON.stringify({ code }),
           credentials: 'include',
         })
 

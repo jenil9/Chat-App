@@ -31,7 +31,7 @@ const ProfileView = () => {
     if (!newUsername.trim()) return;
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/profile/update-username/${user.id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/profile/update-username`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -67,7 +67,7 @@ const ProfileView = () => {
    setRemoving(true)
    try{
     const res = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/api/profile/profilepic/remove/${user.id}`, // ✅ add user id in URL
+      `${import.meta.env.VITE_API_BASE_URL}/api/profile/profilepic/remove`, // ✅ add user id in URL
       {
         method: "PATCH",
         credentials: "include",
@@ -101,7 +101,7 @@ const ProfileView = () => {
       formData.append("image", selectedFile); // ✅ must match backend field name
   
       const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/profile/profilepic/${user.id}`, // ✅ add user id in URL
+        `${import.meta.env.VITE_API_BASE_URL}/api/profile/profilepic`, // ✅ add user id in URL
         {
           method: "POST",
           body: formData,
@@ -134,7 +134,7 @@ const ProfileView = () => {
       const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/friend/accept`, {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ meid: user.id, requesterid: id }),
+        body: JSON.stringify({ requesterid: id }),
         credentials: 'include',
       })
       const data = await res.json()
@@ -153,7 +153,7 @@ const ProfileView = () => {
       const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/friend/reject`, {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ meid: user.id, requesterid: id }),
+        body: JSON.stringify({ requesterid: id }),
         credentials: 'include',
       })
       const data = await res.json()
@@ -171,7 +171,7 @@ const ProfileView = () => {
     const fetchRequests = async () => {
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/api/friend/pendingRequest/${user.id}`,
+          `${import.meta.env.VITE_API_BASE_URL}/api/friend/pendingRequest`,
           { method: 'GET', credentials: 'include' }
         )
         if (!res.ok) {

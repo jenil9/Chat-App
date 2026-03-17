@@ -144,3 +144,6 @@ Initialize the socket after login using the authenticated user id. Use it to sen
 - Backend: reuse FRONTEND_URL for CORS; optionally define SOCKET_PATH if customizing the path
 
 Once the above steps are wired, you’ll have end-to-end real-time messaging with persistence and offline support.
+
+
+

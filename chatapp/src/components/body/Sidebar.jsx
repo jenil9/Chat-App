@@ -60,7 +60,7 @@ const Sidebar = ({ onLinkClick }) => {
       setError('')
       try {
         // Expected response shape: [{ id, username, email,profilePic }]
-        const res = await fetch(`${API_BASE}/api/friend/list/${user.id}`, {
+        const res = await fetch(`${API_BASE}/api/friend/list`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include'

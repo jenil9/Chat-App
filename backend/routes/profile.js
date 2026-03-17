@@ -5,12 +5,16 @@ const fs = require('fs');
 const express = require('express');
 const mongoose = require('mongoose');
 const { User } = require('../models/index');
+const { authenticateToken } = require('../middleware/auth');
 const router = express.Router();
+
+// Apply authentication to all profile routes
+router.use(authenticateToken);
 
 const cloudinaryupload=require('../utility/cloudinary');
 
-router.post('/profilepic/:id',upload.single('image'),async (req,res)=>{
-    const userid=req.params.id;
+router.post('/profilepic',upload.single('image'),async (req,res)=>{
+    const userid= req.user.id;
     try{
         if (!req.file) {
             return res.status(400).json({ message: "No file uploaded" });
@@ -32,8 +36,8 @@ router.post('/profilepic/:id',upload.single('image'),async (req,res)=>{
     }
 })
 
-router.patch('/profilepic/remove/:id',async(req,res)=>{
-    const userid=req.params.id;
+router.patch('/profilepic/remove',async(req,res)=>{
+    const userid= req.user.id;
     try{
         await User.findByIdAndUpdate(userid, { profilePic: null });
         res.status(200).json({});
@@ -43,8 +47,8 @@ router.patch('/profilepic/remove/:id',async(req,res)=>{
         res.status(500).json({ message: err.message });
     }
 })
-router.patch('/update-username/:id',async(req,res)=>{
-    const userid=req.params.id;
+router.patch('/update-username',async(req,res)=>{
+    const userid= req.user.id;
     try{
         await User.findByIdAndUpdate(userid, { username: req.body.username });
         res.status(200).json({});
