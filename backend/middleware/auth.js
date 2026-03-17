@@ -1,7 +1,19 @@
 const jwt = require('jsonwebtoken');
 const { User } = require('../models/index');
+const rateLimit = require('express-rate-limit');
 
 const JWT_SECRET = process.env.APP_JWT_SECRET;
+
+const loginSignupLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 30, // limit each IP to 10 requests per windowMs
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  message: { success: false, message: 'Too many requests. Please try again later.' },
+  handler: (req, res) => {
+    return res.status(429).json({ success: false, message: 'Too many requests. Please try again later.' });
+  },
+});
 
 const authenticateToken = async (req, res, next) => {
   const token = req.cookies['token'];
@@ -22,4 +34,4 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
-module.exports = { authenticateToken };
+module.exports = { authenticateToken, rateLimiter: loginSignupLimiter };

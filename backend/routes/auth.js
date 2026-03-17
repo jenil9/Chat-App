@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
 const {User}=require('../models/index');
+const { rateLimiter } = require('../middleware/auth');
 const router=express.Router();
 
 require('dotenv').config();
@@ -9,7 +10,7 @@ require('dotenv').config();
 const JWT_SECRET = process.env.APP_JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.APP_JWT_EXPIRES_IN || '3h';
 
-router.post('/signup',async (req,res)=>{
+router.post('/signup',rateLimiter,async (req,res)=>{
   try {
     const { username, email, password } = req.body;
 
@@ -35,7 +36,7 @@ router.post('/signup',async (req,res)=>{
   }
 });
 
-router.post('/login',async (req,res)=>{
+router.post('/login',rateLimiter,async (req,res)=>{
   
   try{
   const {email,password}=req.body;

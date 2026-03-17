@@ -109,7 +109,7 @@ router.post('/reject', async (req, res) => {
 });
 
 router.get('/list',async (req,res)=>{
-   const userid= req.user.id;
+   const userid= req.query.userId;
    try{
     const me = await User.findById(userid)
     .select("friends")
