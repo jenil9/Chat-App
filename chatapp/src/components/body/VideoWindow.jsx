@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { getSocket } from '../../../socket'
+import { getSocket } from '../../socket'
 import {Camera,Mic,MicOff} from "lucide-react"
 import { useSelector,useDispatch } from 'react-redux'
 import { setCallingState } from '../../store/userSlice'

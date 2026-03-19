@@ -1,9 +1,9 @@
 // src/socket.js
 import { io } from "socket.io-client";
-import store from "./src/store/store";
-import { addMessage, addMultipleMessages, updateMessageStatus, setUserOnlineStatus,markMessagesAsReadForFriend,addtoonline,removefromonline } from "./src/store/messagesSlice";
+import store from "./store/store";
+import { addMessage, addMultipleMessages, updateMessageStatus, setUserOnlineStatus,markMessagesAsReadForFriend,addtoonline,removefromonline } from "./store/messagesSlice";
 import { useDispatch } from "react-redux";
-import { setCallingState, setCallOffer } from "./src/store/userSlice";
+import { setCallingState, setCallOffer } from "./store/userSlice";
 let socket;
 
 export const initSocket = (userId) => {

@@ -3,7 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { Header, Sidebar } from './components/index'
 import { SidebarProvider } from './context/SidebarContext'
-import { initSocket } from '../socket'
+import { initSocket } from './socket'
 import './App.css'
 
 function App() {

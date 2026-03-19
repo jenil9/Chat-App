@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
-import { getSocket, sendMessage, markMessagesAsRead, loadMessages, checkOnlineStatus } from '../../../socket'
+import { getSocket, sendMessage, markMessagesAsRead, loadMessages, checkOnlineStatus } from '../../socket'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectMessagesForFriend, selectUserOnlineStatus, markMessagesAsReadForFriend } from '../../store/messagesSlice'
 

@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import { Menu } from 'lucide-react'
-import { getSocket, checkOnlineStatus } from '../../../socket'
+import { getSocket, checkOnlineStatus } from '../../socket'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectUserOnlineStatus } from '../../store/messagesSlice'
 import { useSidebar } from '../../context/SidebarContext'

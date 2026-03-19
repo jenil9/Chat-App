@@ -1,7 +1,7 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { setCallingState, setCallOffer } from '../../store/userSlice';
-import { getSocket } from '../../../socket';
+import { getSocket } from '../../socket';
 import { useNavigate } from 'react-router-dom';
 
 const IncomingCall = () => {

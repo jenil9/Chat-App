@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { getSocket } from "../../../socket";
+import { getSocket } from "../../socket";
 import { Cable, Menu } from "lucide-react";
 
 const Header = ({ onMenuClick }) => {
