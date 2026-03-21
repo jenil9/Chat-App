@@ -41,23 +41,26 @@ const AddFriend = () => {
   }
 
   return (
-    <div className="h-full w-full bg-gradient-to-br from-slate-900 to-slate-950 text-slate-50 p-6 flex items-center justify-center">
-      <div className="max-w-lg w-full">
-        <div className="backdrop-blur-2xl bg-slate-800/40 border border-slate-700/50 rounded-3xl p-8 shadow-2xl shadow-black/50 animate-scale-in">
-          <h1 className="text-3xl font-bold text-slate-50 tracking-tight">Add a Friend</h1>
-          <p className="text-sm text-slate-400 mt-2">
+    <div className="h-full w-full flex items-center justify-center min-h-full bg-[#0d1117] p-6">
+      <div className="w-full max-w-md">
+        <div className="bg-[#161b22] border border-white/[0.08] rounded-xl p-8 animate-scale-in">
+          <h1 className="text-slate-100 text-xl font-semibold mb-1">Add a Friend</h1>
+          <p className="text-slate-400 text-sm mb-6">
             Enter their friend code to send a request.
           </p>
 
-          <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-4">
+          <form onSubmit={onSubmit} className="flex flex-col">
+            <label className="block text-[12px] text-slate-500 uppercase tracking-wider mb-2">
+              Friend code
+            </label>
             <input
-              className="w-full px-4 py-3 backdrop-blur-xl bg-white/5 border border-white/10 focus:border-cyan-400/50 focus:bg-white/10 rounded-xl text-slate-100 placeholder:text-slate-500 outline-none transition-all duration-300 focus:shadow-lg focus:shadow-cyan-500/10 uppercase tracking-widest font-mono text-lg"
+              className="w-full bg-[#1c2128] border border-white/[0.08] focus:border-blue-500/50 rounded-lg px-4 py-3 text-slate-100 text-base font-mono tracking-[0.15em] uppercase placeholder:text-slate-600 outline-none transition-colors duration-150"
               placeholder="XXXX-XXXX"
               value={code}
               onChange={(e) => setCode(e.target.value)}
             />
             <button
-              className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-semibold rounded-xl shadow-lg shadow-cyan-500/30 transition-all duration-300 hover:scale-105 active:scale-95"
+              className="w-full bg-blue-600 hover:bg-blue-500 text-white rounded-lg py-3 text-sm font-semibold transition-colors duration-150 mt-4"
               type="submit"
             >
               Send Request
@@ -65,13 +68,13 @@ const AddFriend = () => {
           </form>
 
           {status && (
-            <div className={`mt-4 p-3 rounded-xl text-sm font-medium backdrop-blur-lg ${
+            <p className={`mt-3 text-sm ${
               status.includes('sent') 
-                ? 'bg-emerald-500/20 border border-emerald-400/30 text-emerald-300' 
-                : 'bg-red-500/20 border border-red-400/30 text-red-300'
+                ? 'text-green-400' 
+                : 'text-red-400'
             }`}>
               {status}
-            </div>
+            </p>
           )}
         </div>
       </div>

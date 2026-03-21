@@ -262,10 +262,10 @@ const [remoteMuted, setRemoteMuted] = useState(false);
 
   {/* Avatar when remote camera is OFF */}
   {friendState === "onCall" && remoteCameraOff && (
-    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-950 animate-fade-in">
+    <div className="absolute inset-0 flex items-center justify-center bg-[#0d1117] animate-fade-in">
       <img
         src={`https://api.dicebear.com/9.x/identicon/svg?seed=${friendId}`}
-        className="w-32 h-32 rounded-full shadow-2xl shadow-purple-500/50"
+        className="w-32 h-32 rounded-full"
         alt="Remote avatar"
       />
     </div>
@@ -273,7 +273,7 @@ const [remoteMuted, setRemoteMuted] = useState(false);
 
   {/* Remote mic muted indicator */}
   {friendState === "onCall" && remoteMuted && (
-    <div className="absolute top-4 right-4 backdrop-blur-lg bg-red-500/20 border border-red-400/50 p-3 rounded-full z-10 shadow-lg shadow-red-500/30">
+    <div className="absolute top-4 right-4 bg-red-500/20 border border-red-400/50 p-3 rounded-full z-10">
       <MicOff className="w-5 h-5 text-red-400" />
     </div>
   )}
@@ -298,12 +298,12 @@ const [remoteMuted, setRemoteMuted] = useState(false);
   </div>
 )}
  {showCallingUI && (
-  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 via-slate-950 to-black overflow-hidden animate-fade-in">
+  <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0d1117] overflow-hidden animate-fade-in">
 
     {/* Animated background gradient */}
-    <div className="absolute inset-0 flex items-center justify-center opacity-20 pointer-events-none">
-      <div className="absolute w-96 h-96 bg-cyan-500 rounded-full blur-3xl animate-pulse-slow"></div>
-      <div className="absolute w-96 h-96 bg-blue-500 rounded-full blur-3xl animate-pulse-slow animation-delay-1000"></div>
+    <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+      <div className="absolute w-96 h-96 bg-blue-500/50 rounded-full blur-3xl animate-pulse-slow"></div>
+      <div className="absolute w-96 h-96 bg-blue-500/30 rounded-full blur-3xl animate-pulse-slow animation-delay-1000"></div>
     </div>
 
     {/* Lottie Animation */}
@@ -334,14 +334,14 @@ const [remoteMuted, setRemoteMuted] = useState(false);
 
   {/* ON OTHER CALL STATE */}
   {friendState === "onOtherCall" && (
-  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-gradient-to-b from-slate-950 via-slate-900 to-black backdrop-blur-lg animate-fade-in">
+  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#0d1117] animate-fade-in">
 
     {/* Avatar */}
     <div className="relative">
       {/* busy ring */}
       <div className="absolute inset-0 rounded-full border-2 border-orange-400/50 animate-pulse-slow scale-110"></div>
 
-      <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 border border-white/20 shadow-2xl shadow-orange-500/50 flex items-center justify-center text-white text-2xl font-bold" />
+      <div className="relative w-20 h-20 rounded-full bg-orange-600 border border-white/[0.08] flex items-center justify-center text-white text-2xl font-bold" />
     </div>
 
     {/* Status */}
@@ -366,13 +366,13 @@ const [remoteMuted, setRemoteMuted] = useState(false);
           <div className="relative w-full h-full">
             {callingState.callState === "calling" ? (
               /* ===== CALLING ===== */
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 to-slate-950">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center text-white text-3xl font-bold shadow-lg" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0d1117]">
+                <div className="w-20 h-20 rounded-full bg-[#2d333b] flex items-center justify-center text-white text-3xl font-bold" />
                
               </div>
             ) : callingState.callState === "offline" ? (
               /* ===== OFFLINE ===== */
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900">
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0d1117]">
                 <div className="w-16 h-16 rounded-full bg-slate-700 flex items-center justify-center">
                   <svg className="w-8 h-8 text-slate-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
@@ -394,7 +394,7 @@ const [remoteMuted, setRemoteMuted] = useState(false);
                 
                 {/* Avatar shown when camera is off */}
                 {cameraOff && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
+                  <div className="absolute inset-0 flex items-center justify-center bg-[#0d1117]">
                     <img
                       src={`https://api.dicebear.com/9.x/identicon/svg?seed=${Math.random()}`}
                       className="w-16 h-16 rounded-full"
@@ -407,7 +407,7 @@ const [remoteMuted, setRemoteMuted] = useState(false);
 
             {/* ===== MIC OFF OVERLAY ===== */}
             {isMuted && (
-              <div className="absolute top-2 right-2 backdrop-blur-lg bg-red-500/20 border border-red-400/50 p-1.5 rounded-full">
+              <div className="absolute top-2 right-2 bg-red-500/20 border border-red-400/50 p-1.5 rounded-full">
                 <MicOff className="w-4 h-4 text-red-400" />
               </div>
             )}

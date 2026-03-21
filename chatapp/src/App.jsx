@@ -31,13 +31,13 @@ function App() {
 
   return (
     <SidebarProvider onMenuClick={toggleSidebar}>
-    <div className='p-3 md:p-4 flex flex-col h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-50 overflow-hidden relative'>
+    <div className='p-3 md:p-4 flex flex-col h-screen bg-[#0d1117] text-slate-50 overflow-hidden relative'>
       <Header onMenuClick={toggleSidebar} />
       <div className='flex flex-1 gap-4 min-h-0 w-full relative'>
         {/* Mobile overlay - outside overflow container, high z-index */}
         <div
           className={`
-            fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm
+            fixed inset-0 z-[100] bg-black/50
             md:hidden transition-opacity duration-300
             ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}
           `}
@@ -55,11 +55,11 @@ function App() {
             ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
           `}
         >
-          <div className='sidebar-inner h-full rounded-none md:rounded-2xl overflow-hidden backdrop-blur-xl bg-slate-800/40 border-0 md:border border-slate-700/50 shadow-xl shadow-black/40'>
+          <div className='sidebar-inner h-full rounded-none md:rounded-xl overflow-hidden bg-[#161b22] border-0 md:border border-white/[0.08]'>
             <Sidebar onLinkClick={closeSidebar} />
           </div>
         </div>
-        <div className='flex-1 min-w-0 min-h-0 rounded-2xl overflow-hidden backdrop-blur-xl bg-slate-800/40 border border-slate-700/50 shadow-xl shadow-black/40 flex flex-col'>
+        <div className='flex-1 min-w-0 min-h-0 rounded-xl overflow-hidden bg-[#161b22] border border-white/[0.08] flex flex-col'>
           <Outlet />
         </div>
       </div>

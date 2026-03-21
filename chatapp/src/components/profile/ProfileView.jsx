@@ -187,11 +187,11 @@ const ProfileView = () => {
   }, [user?.id])
 
   return (
-    <div className="h-full w-full bg-gradient-to-br from-slate-900 to-slate-950 text-slate-50 p-6 overflow-auto">
+    <div className="h-full w-full bg-[#0d1117] text-slate-50 min-h-full p-6 overflow-auto">
       <div className="max-w-2xl mx-auto animate-fade-in">
         {/* User Header */}
-        <div className="flex items-center gap-6 mb-8 backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl">
-          <div className="h-24 w-24 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-2xl font-bold text-white overflow-hidden flex-shrink-0 shadow-xl shadow-cyan-500/30">
+        <div className="flex items-center gap-6 mb-8 bg-[#161b22] border border-white/[0.08] rounded-xl p-5">
+          <div className="h-24 w-24 rounded-full bg-blue-600 flex items-center justify-center text-2xl font-bold text-white overflow-hidden flex-shrink-0 ring-2 ring-blue-500/40 ring-offset-2 ring-offset-[#161b22]">
             {profilePic ? (
               <img src={profilePic} alt="profile" className="h-full w-full object-cover" />
             ) : (
@@ -206,23 +206,23 @@ const ProfileView = () => {
                 value={newUsername}
                 disabled={!isEditing}
                 onChange={(e) => setNewUsername(e.target.value)}
-                className={`text-2xl font-bold tracking-tight px-3 py-1 rounded-lg transition-all duration-300 ${
+                className={`text-xl font-semibold tracking-tight px-3 py-1 rounded-lg transition-all duration-300 ${
                   isEditing 
-                    ? "bg-white/10 border border-cyan-400/50 text-slate-100" 
-                    : "bg-transparent border border-transparent text-slate-50"
+                    ? "bg-white/10 border border-blue-500/40 text-slate-100" 
+                    : "bg-transparent border border-transparent text-slate-100"
                 }`}
               />
               {isEditing ? (
                 <>
                   <button
                     onClick={handleSaveusername}
-                    className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white text-sm font-semibold rounded-lg shadow-lg transition-all duration-300"
+                    className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg px-3 py-1.5 transition-colors duration-150"
                   >
                     Save
                   </button>
                   <button
                     onClick={() => { setIsEditing(false); setNewUsername(username); }}
-                    className="px-4 py-2 backdrop-blur-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-sm font-semibold rounded-lg transition-all duration-300"
+                    className="border border-white/[0.08] text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] text-sm rounded-lg px-3 py-1.5 transition-colors duration-150"
                   >
                     Cancel
                   </button>
@@ -230,7 +230,7 @@ const ProfileView = () => {
               ) : (
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="px-4 py-2 backdrop-blur-lg bg-white/5 hover:bg-white/10 border border-white/10 text-cyan-400 hover:text-cyan-300 text-sm font-semibold rounded-lg transition-all duration-300"
+                  className="border border-white/[0.08] text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] rounded-lg px-3 py-1.5 text-sm transition-colors duration-150"
                 >
                   Edit
                 </button>
@@ -243,17 +243,17 @@ const ProfileView = () => {
         {/* Info Cards */}
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Friend Code */}
-          <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl hover:bg-white/10 transition-all duration-300 animate-slide-up">
-            <div className="text-sm text-slate-400 font-medium">Friend Code</div>
-            <div className="mt-3 text-2xl font-bold tracking-widest text-cyan-400">{friendCode || 'XXXX-XXXX'}</div>
-            <div className="mt-3 text-xs text-slate-400">Share this code so others can add you.</div>
+          <div className="bg-[#161b22] border border-white/[0.08] rounded-xl p-5 animate-slide-up">
+            <div className="text-[11px] uppercase tracking-widest text-slate-500 mb-2">Friend Code</div>
+            <div className="text-slate-100 text-2xl font-bold font-mono tracking-[0.2em]">{friendCode || 'XXXX-XXXX'}</div>
+            <div className="text-slate-500 text-sm mt-1">Share this code so others can add you.</div>
           </div>
 
           {/* Profile Picture Upload */}
-          <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center shadow-xl hover:bg-white/10 transition-all duration-300 animate-slide-up">
+          <div className="bg-[#161b22] border border-white/[0.08] rounded-xl p-5 flex flex-col items-center justify-center animate-slide-up">
             <h3 className='mb-4 font-semibold text-slate-100'>Update Profile Pic</h3>
             <div className="relative">
-              <div className="h-32 w-32 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center overflow-hidden shadow-lg border-2 border-white/10">
+              <div className="w-24 h-24 rounded-full border-2 border-dashed border-white/[0.12] hover:border-blue-500/50 bg-[#1c2128] flex items-center justify-center overflow-hidden cursor-pointer transition-colors duration-150">
                 {preview ? (
                   <img src={preview} alt="preview" className="h-full w-full object-cover" />
                 ) : (
@@ -272,7 +272,7 @@ const ProfileView = () => {
               {/* Overlay Button */}
               <label
                 htmlFor="profilePicInput"
-                className="absolute bottom-0 right-0 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 p-3 rounded-full cursor-pointer shadow-lg transition-all duration-300 hover:scale-110"
+                className="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-500 p-2.5 rounded-full cursor-pointer transition-colors duration-150"
               >
                 ✏️
               </label>
@@ -283,13 +283,13 @@ const ProfileView = () => {
                 <button
                   onClick={handleSave}
                   disabled={uploading}
-                  className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white font-semibold rounded-lg shadow-lg transition-all duration-300 disabled:opacity-50"
+                  className="bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg px-3 py-1.5 text-sm transition-colors duration-150 disabled:opacity-50"
                 >
                   {uploading ? "Saving..." : "Save"}
                 </button>
                 <button
                   onClick={handleCancel}
-                  className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white font-semibold rounded-lg shadow-lg transition-all duration-300"
+                  className="border border-white/[0.08] text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] rounded-lg px-3 py-1.5 text-sm transition-colors duration-150"
                 >
                   Cancel
                 </button>
@@ -299,7 +299,7 @@ const ProfileView = () => {
               profilePic && (
               <button
                 onClick={handleRemove}
-                className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white font-semibold rounded-lg shadow-lg transition-all duration-300 mt-5"
+                className="text-red-400 text-sm hover:text-red-300 transition-colors duration-150 mt-5"
               >
                 {removing ? "Removing..." : "Remove"}
               </button>
@@ -311,9 +311,9 @@ const ProfileView = () => {
 
         {/* Pending Friend Requests */}
         <div className="mt-10">
-          <h2 className="text-2xl font-bold text-slate-100 mb-6">Pending Requests</h2>
+          <h2 className="text-[11px] uppercase tracking-widest text-slate-500 mb-3">Pending Requests</h2>
           {failmsg && (
-            <div className="mb-4 p-4 backdrop-blur-lg bg-red-500/20 border border-red-400/30 rounded-xl">
+            <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
               <p className="text-red-300 text-sm font-medium">{failmsg}</p>
             </div>
           )}
@@ -328,7 +328,7 @@ const ProfileView = () => {
                 />
               ))
             ) : (
-              <div className="text-slate-400 text-sm text-center py-8">No pending requests</div>
+              <div className="text-slate-600 text-sm text-center py-8">No pending requests</div>
             )}
           </div>
         </div>
