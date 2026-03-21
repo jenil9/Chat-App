@@ -239,7 +239,7 @@ const [remoteMuted, setRemoteMuted] = useState(false);
 };
 
   return (
-    <div className="flex flex-1 flex-col min-h-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+    <div className="flex flex-1 flex-col min-h-0 bg-[#0d1117]">
       
       {/* Video Stage */}
       <div className="relative flex-1 overflow-hidden">
@@ -248,7 +248,7 @@ const [remoteMuted, setRemoteMuted] = useState(false);
         {/* ================= REMOTE VIDEO ================= */}
        
          {/* ================= REMOTE VIDEO STAGE ================= */}
-<div className="absolute inset-0 bg-black">
+<div className="absolute inset-0 bg-[#0d1117]">
 
   {/* Remote Video (always mounted) */}
   <video
@@ -280,7 +280,7 @@ const [remoteMuted, setRemoteMuted] = useState(false);
 
   {/* OFFLINE STATE */}
   {friendState === "offline" && (
-  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black animate-fade-in">
+  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#0d1117] animate-fade-in">
 
     <Lottie
       animationData={offlineAnim}
@@ -288,11 +288,11 @@ const [remoteMuted, setRemoteMuted] = useState(false);
       className="w-40 opacity-40"
     />
 
-    <p className="mt-4 text-sm text-slate-200 font-medium">
+    <p className="mt-4 text-sm text-slate-400 font-medium">
       User is offline
     </p>
 
-    <p className="text-xs text-slate-400">
+    <p className="text-xs text-slate-600">
       Try again later
     </p>
   </div>
@@ -362,7 +362,7 @@ const [remoteMuted, setRemoteMuted] = useState(false);
 
 
         {/* Local Video (Floating) */}
-        <div className="absolute bottom-8 left-8 w-[22%] min-w-[180px] aspect-video rounded-2xl overflow-hidden backdrop-blur-xl bg-slate-900/80 border border-slate-700/50 shadow-2xl shadow-black/50 animate-slide-up">
+        <div className="absolute bottom-8 left-8 w-[22%] min-w-[180px] aspect-video rounded-lg border border-white/[0.08] overflow-hidden bg-[#0d1117] animate-slide-up">
           <div className="relative w-full h-full">
             {callingState.callState === "calling" ? (
               /* ===== CALLING ===== */
@@ -417,39 +417,41 @@ const [remoteMuted, setRemoteMuted] = useState(false);
 
 
       {/* Controls */}
-      <div className="h-32 backdrop-blur-2xl bg-slate-800/40 border-t border-slate-700/50 flex items-center justify-center gap-6 shadow-2xl shadow-black/50 flex-wrap px-4">
+      <div className="bg-[#161b22] border-t border-white/[0.08] py-4 flex items-center justify-center gap-4">
         
         {/* Mute */}
-       <button 
-  onClick={handleMicToggle}
-  className={`w-16 h-16 rounded-full flex items-center justify-center text-white transition-all duration-300 shadow-lg hover:scale-110 active:scale-95 ${
-    isMuted 
-      ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 shadow-red-500/50 border border-red-400/50' 
-      : 'backdrop-blur-lg bg-white/10 hover:bg-white/20 border border-white/20 shadow-black/30'
-  }`}
->
-  {isMuted ? <MicOff size={28} /> : <Mic size={28} />}
-</button>
-
+        <button 
+          onClick={handleMicToggle}
+          className={`w-12 h-12 rounded-full border flex items-center justify-center transition-colors duration-150 ${
+            isMuted 
+              ? 'bg-white/90 border-white/20 text-[#0d1117]' 
+              : 'bg-[#1c2128] border-white/[0.08] text-slate-300 hover:bg-[#2d333b]'
+          }`}
+        >
+          {isMuted ? <MicOff size={22} /> : <Mic size={22} />}
+        </button>
 
         {/* Camera */}
         <button 
           onClick={handleCameraToggle}
-          className={`w-16 h-16 rounded-full flex items-center justify-center text-white transition-all duration-300 shadow-lg hover:scale-110 active:scale-95 ${
+          className={`w-12 h-12 rounded-full border flex items-center justify-center transition-colors duration-150 ${
             cameraOff 
-              ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 shadow-red-500/50 border border-red-400/50' 
-              : 'backdrop-blur-lg bg-white/10 hover:bg-white/20 border border-white/20 shadow-black/30'
+              ? 'bg-white/90 border-white/20 text-[#0d1117]' 
+              : 'bg-[#1c2128] border-white/[0.08] text-slate-300 hover:bg-[#2d333b]'
           }`}
         >
-          <Camera size={28} />
+          <Camera size={22} />
         </button>
 
         {/* End Call */}
         <button
           onClick={handleEndCallClick}
-          className="px-10 py-3 rounded-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white font-semibold text-base shadow-lg shadow-red-500/30 transition-all duration-300 hover:scale-105 active:scale-95"
+          className="w-12 h-12 rounded-full bg-red-600 hover:bg-red-700 text-white border-none flex items-center justify-center transition-colors duration-150"
         >
-          End Call
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M16 8l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M5 3a2 2 0 00-2 2v1c0 8.284 6.716 15 15 15h1a2 2 0 002-2v-3.28a1 1 0 00-.684-.948l-4.493-1.498a1 1 0 00-1.21.502l-1.13 2.257a11.042 11.042 0 01-5.516-5.517l2.257-1.128a1 1 0 00.502-1.21L9.228 3.683A1 1 0 008.279 3H5z" />
+          </svg>
         </button>
       </div>
     </div>

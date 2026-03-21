@@ -62,7 +62,7 @@ const ChatContainer = () => {
   };
 
   return (
-    <section className="h-full min-h-0 flex flex-col bg-gradient-to-br from-slate-900 to-slate-950 text-slate-50 overflow-hidden">
+    <section className="h-full min-h-0 flex flex-col bg-[#0d1117] text-slate-50 overflow-hidden">
       <div
         className={`
           fixed top-4 right-4 z-50
@@ -76,33 +76,33 @@ const ChatContainer = () => {
       </div>
 
       {/* Header - sticky on mobile, always visible, does not scroll with messages */}
-      <div className="sticky top-0 z-10 px-4 py-4 backdrop-blur-lg bg-white/5 border-b border-slate-700/50 flex items-center justify-between flex-shrink-0 shadow-lg">
+      <div className="sticky top-0 z-10 bg-[#161b22] border-b border-white/[0.08] px-4 py-3 flex items-center gap-3 flex-shrink-0">
         <div className="flex items-center gap-4 min-w-0 flex-1">
           {/* Hamburger to open sidebar on mobile */}
           {onMenuClick && (
             <button
               onClick={onMenuClick}
-              className="md:hidden flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl backdrop-blur-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-slate-300 hover:text-slate-100 transition-all duration-300"
+              className="md:hidden flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-200 transition-colors duration-150"
               aria-label="Open chat list"
             >
               <Menu size={22} strokeWidth={2} />
             </button>
           )}
-          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-xs font-bold text-white shadow-lg">
+          <div className="w-9 h-9 rounded-full bg-[#2d333b] flex items-center justify-center text-sm font-semibold text-slate-300 flex-shrink-0">
             {(friend.username || '?').slice(0, 2).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="font-semibold flex items-center gap-2 text-slate-100">
+            <div className="text-[15px] font-semibold flex items-center gap-2 text-slate-100">
               {friend.username || 'Friend'}
               <button
                 onClick={handleClickCall}
-                className="text-xs bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 px-3 py-1.5 rounded-lg font-semibold transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-cyan-500/30"
+                className="border border-white/[0.08] text-slate-400 hover:bg-white/[0.06] hover:text-slate-200 rounded-lg px-3 py-1.5 text-sm transition-colors duration-150 flex items-center gap-1.5"
               >
                 📹 Call
               </button>
             </div>
-            <div className={`text-xs font-medium ${isFriendOnline === "Online" ? 'text-emerald-400' : 'text-slate-500'}`}>
-              {isFriendOnline === "Online" ? '🟢 Online' : '🔴 Offline'}
+            <div className={`text-[12px] ${isFriendOnline === "Online" ? 'text-green-400' : 'text-slate-500'}`}>
+              {isFriendOnline === "Online" ? 'Online' : 'Offline'}
             </div>
           </div>
         </div>
