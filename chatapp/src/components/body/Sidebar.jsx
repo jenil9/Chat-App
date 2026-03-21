@@ -15,21 +15,21 @@ const FriendItem = ({ friend, location, onLinkClick }) => {
         to={{ pathname: `/friends/${friend.id}` }}
         state={{ friend: friend, from: location.pathname }}
         onClick={onLinkClick}
-        className="flex items-center gap-3 px-4 py-3 mx-2 my-1 rounded-xl backdrop-blur-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all duration-300 hover:translate-x-1 animate-slide-in group"
+        className="flex items-center gap-3 rounded-lg mx-2 px-3 py-2.5 hover:bg-white/[0.05] transition-colors duration-150 cursor-pointer animate-slide-in group"
       >
-        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-xs font-semibold overflow-hidden flex-shrink-0 shadow-lg shadow-cyan-500/30 group-hover:shadow-cyan-500/50 transition-shadow duration-300">
+        <div className="h-10 w-10 rounded-full bg-[#2d333b] flex items-center justify-center text-sm font-semibold overflow-hidden flex-shrink-0">
           {friend.profilePic ? (
             <img src={friend.profilePic} alt="profile" className="h-full w-full object-cover" />
           ) : (
-            <span className="text-white">{friend.username ? friend.username.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'U'}</span>
+            <span className="text-slate-300">{friend.username ? friend.username.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'U'}</span>
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="font-medium text-slate-100 truncate">{friend.username || 'Unknown'}</div>
-          <div className="text-xs text-slate-400 truncate">{friend.email || ''}</div>
+          <div className="text-slate-200 text-[14px] font-medium truncate">{friend.username || 'Unknown'}</div>
+          <div className="text-slate-500 text-[12px] truncate">{friend.email || ''}</div>
         </div>
         {unreadCount > 0 && (
-          <div className="ml-2 min-w-[24px] h-6 bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg shadow-cyan-500/50 flex-shrink-0">
+          <div className="ml-2 min-w-[24px] h-6 bg-blue-600 text-white text-xs rounded-full flex items-center justify-center font-bold flex-shrink-0">
             {unreadCount > 99 ? '99+' : unreadCount}
           </div>
         )}
@@ -87,10 +87,10 @@ const Sidebar = ({ onLinkClick }) => {
   }, [friends, query])
 
   return (
-    <aside className="h-full flex flex-col bg-gradient-to-b from-slate-900 to-slate-950 text-slate-50">
-      <div className="p-4 border-b border-slate-700/50 backdrop-blur-lg bg-white/5">
+    <aside className="h-full flex flex-col bg-[#161b22] border-r border-white/[0.08] text-slate-50">
+      <div className="border-b border-white/[0.08] px-4 py-4">
         <div className="flex items-center gap-3">
-          <div className="h-14 w-14 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-sm font-bold text-white overflow-hidden shadow-lg shadow-cyan-500/40 flex-shrink-0 group cursor-pointer hover:shadow-cyan-500/60 transition-shadow duration-300">
+          <div className="h-14 w-14 rounded-full bg-blue-600 flex items-center justify-center text-sm font-semibold text-white overflow-hidden flex-shrink-0 cursor-pointer">
             {user.profilePic ? (
               <img src={user.profilePic} alt="profile" className="h-full w-full object-cover" />
             ) : (
@@ -98,23 +98,23 @@ const Sidebar = ({ onLinkClick }) => {
             )}
           </div>
           <div>
-            <div className="font-semibold text-slate-100">{user?.username || 'User'}</div>
+            <div className="text-slate-100 font-semibold text-[15px]">{user?.username || 'User'}</div>
             <div className="text-xs text-slate-400 flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse-slow"></span>
+              <span className="w-2 h-2 rounded-full bg-green-400 ring-2 ring-[#161b22] animate-pulse-slow"></span>
               online
             </div>
           </div>
         </div>
         <div className="mt-4">
-          <div className="relative group">
+          <div className="relative bg-[#1c2128] border border-white/[0.08] rounded-full px-3 py-2 flex items-center gap-2 focus-within:border-blue-500/50 transition-colors duration-150">
             <input
               type="text"
               placeholder="Search friends..."
-              className="w-full px-4 py-3 pl-10 backdrop-blur-xl bg-white/5 border border-white/10 focus:border-cyan-400/50 focus:bg-white/10 rounded-xl text-slate-100 placeholder:text-slate-500 outline-none transition-all duration-300 focus:shadow-lg focus:shadow-cyan-500/20"
+              className="bg-transparent text-slate-200 text-sm placeholder:text-slate-500 outline-none w-full pl-7"
               value={query}
               onChange={(e)=>setQuery(e.target.value)}
             />
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-cyan-400 transition-colors duration-300 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-400 transition-colors duration-300 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
@@ -126,7 +126,7 @@ const Sidebar = ({ onLinkClick }) => {
         {loading ? (
           <div className="h-full w-full flex items-center justify-center text-slate-400 text-sm">
             <div className="text-center">
-              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-slate-600 border-t-cyan-400"></div>
+              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-[#1c2128] border-t-blue-400"></div>
               <p className="mt-2">Loading...</p>
             </div>
           </div>

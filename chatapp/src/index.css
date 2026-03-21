@@ -1,10 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap');
 @import "tailwindcss";
 
 /* Root styles */
 :root {
   --font-display: 'Space Grotesk', sans-serif;
-  --font-body: 'Inter', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
 }
 
 * {
@@ -21,16 +21,16 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.5);
+  background: #1c2128;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(51, 65, 85, 0.7);
+  background: #30363d;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(71, 85, 105, 0.9);
+  background: #484f58;
 }
 
 /* Animation delay utilities */
@@ -47,4 +47,19 @@ h1, h2, h3, h4, h5, h6 {
 /* Sidebar slide animation for smooth transitions */
 .sidebar-wrapper {
   will-change: transform;
+}
+
+/* Message bubble utilities */
+.msg-bubble-sent {
+  background: #1d4ed8;
+  border: 1px solid rgba(59,130,246,0.3);
+  color: #f0f6ff;
+  border-radius: 16px 4px 16px 16px;
+}
+
+.msg-bubble-recv {
+  background: #1c2128;
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #e6edf3;
+  border-radius: 4px 16px 16px 16px;
 }
