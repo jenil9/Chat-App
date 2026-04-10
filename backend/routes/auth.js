@@ -59,7 +59,7 @@ if (!isPasswordValid) {
   res.cookie("token", token, {
     httpOnly: true,
     secure: true,          // REQUIRED for HTTPS
-    // sameSite: "lax"       // REQUIRED for cross-origin
+    sameSite: "none"       // REQUIRED for cross-origin across different domains
   });
   
 
@@ -93,7 +93,7 @@ router.get("/logout", (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     secure: true, // use true in production (HTTPS)
-    // sameSite: "lax",
+    sameSite: "none",
   });
   return res.status(200).json({ message: "Logged out successfully" });
 });
