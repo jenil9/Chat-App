@@ -11,11 +11,7 @@ const { videoSocketHandler, chatSocketHandler } = require('./socket/chat');
 
 const app = express();
 
-// ✅ CORS must be first
-app.use(cors({
-  origin: process.env.APP_CLIENT_URL || "*",
-  credentials: true,
-}));
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
