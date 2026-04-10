@@ -56,9 +56,9 @@ app.use('/api/friend', friendRouter);
 app.use('/api/profile', profileRouter);
 
 // ✅ Serve frontend
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
+app.use(express.static(path.join(__dirname, '../chatapp/dist')));
 app.use((req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+  res.sendFile(path.join(__dirname, '../chatapp/dist/index.html'));
 });
 
 // ✅ Socket handlers
