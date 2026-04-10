@@ -125,7 +125,7 @@ app.use(cookieParser());
 
 const key = fs.readFileSync('cert.key');
 const cert = fs.readFileSync('cert.crt');
-const server = null;
+let server = null;
 
 if(process.env.APP_SERVER_ENV === 'development') {server = https.createServer({ key, cert }, app)}
 else {server = https.createServer(app)}
