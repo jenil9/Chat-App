@@ -104,7 +104,7 @@
 //       console.log(`CORS enabled for: ${process.env.APP_CLIENT_URL}`);
 //     }
 // });
-require('dotenv').config();
+if(process.env.APP_SERVER_ENV === 'development'){require('dotenv').config();}
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
@@ -166,7 +166,7 @@ io.on('connection', (socket) => {
   videoSocketHandler(io, socket);
 });
 
-const PORT = process.env.APP_SERVER_PORT || 3000;
+const PORT = process.env.APP_SERVER_PORT;
 server.listen(PORT, '0.0.0.0', () => {
   
 });
