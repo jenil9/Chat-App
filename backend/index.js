@@ -12,7 +12,31 @@ const { videoSocketHandler, chatSocketHandler } = require('./socket/chat');
 const app = express();
 
 
+const allowedOrigins = [
+  process.env.APP_CLIENT_URL,          // production vercel URL
+  process.env.APP_CLIENT_URL_LOCAL,    // development localhost e.g https://localhost:5173
+].filter(Boolean);
 
+app.use(cors({
+  origin: (origin, callback) => {
+    // allow requests with no origin (Postman, mobile apps)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Also allow any vercel preview deployments
+    if (origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+
+    console.warn(`Blocked by CORS: ${origin}`);
+    // Passing false instead of Error prevents 500 errors on preflight OPTIONS requests
+    callback(null, false); 
+  },
+  credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -33,7 +57,16 @@ if (process.env.APP_SERVER_ENV === 'development') {
 // ✅ Socket.io with CORS
 const io = require('socket.io')(server, {
   cors: {
-    origin: process.env.APP_CLIENT_URL || "*",
+    origin: (origin, callback) => {
+      // allow requests with no origin
+      if (!origin) return callback(null, true);
+      // exactly match allowed origins
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      // allow any vercel.app domains
+      if (origin.endsWith('.vercel.app')) return callback(null, true);
+      // fallback
+      return callback(null, false);
+    },
     credentials: true,
   }
 });
