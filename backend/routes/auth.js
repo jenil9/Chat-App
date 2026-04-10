@@ -93,7 +93,7 @@ router.get("/logout", (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     secure: true, // use true in production (HTTPS)
-    sameSite: "strict",
+    sameSite: "none",
   });
   return res.status(200).json({ message: "Logged out successfully" });
 });

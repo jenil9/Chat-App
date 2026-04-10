@@ -4,11 +4,18 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const path = require('path');
+const cors = require('cors');
 
 const { authRouter, friendRouter, profileRouter } = require('./routes/index');
 const { videoSocketHandler, chatSocketHandler } = require('./socket/chat');
 
 const app = express();
+
+// ✅ CORS must be first
+app.use(cors({
+  origin: process.env.APP_CLIENT_URL || "*",
+  credentials: true,
+}));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -49,9 +56,9 @@ app.use('/api/friend', friendRouter);
 app.use('/api/profile', profileRouter);
 
 // ✅ Serve frontend
-app.use(express.static(path.join(__dirname, '../chatapp/dist')));
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
 app.use((req, res) => {
-  res.sendFile(path.join(__dirname, '../chatapp/dist/index.html'));
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
 // ✅ Socket handlers
